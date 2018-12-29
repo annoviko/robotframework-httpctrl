@@ -5,6 +5,9 @@ class Request:
         self.__url = url
         self.__body = body
 
+    def __copy__(self):
+        return Request(self.__endpoint[0], self.__endpoint[1], self.__method, self.__url, self.__body)
+
     def __str__(self):
         return "%s %s\n%s" % (self.__method, self.__url, self.__body)
 

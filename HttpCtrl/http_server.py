@@ -1,7 +1,6 @@
 from socketserver import TCPServer
 
 from HttpCtrl.http_handler import HttpHandler
-from HttpCtrl.logger import Logger
 
 
 class HttpServer:
@@ -34,5 +33,3 @@ class HttpServer:
         if self.__server is not None:
             self.__server.shutdown()
             self.__server.server_close()
-
-            Logger.info("HTTP server is successfully stopped.")

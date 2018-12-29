@@ -10,6 +10,9 @@ class Response:
 
         return "%s\n%s" % (str(self.__status), self.__body)
 
+    def __copy__(self):
+        return Response(self.__status, self.__body, self.__headers)
+
     def get_status(self):
         return self.__status
 

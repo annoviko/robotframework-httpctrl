@@ -1,8 +1,7 @@
 import threading
-import time
 
-
-from HttpCtrl.logger import Logger
+from copy import copy
+from robot.api import logger
 
 
 class ResponseStorage:
@@ -16,6 +15,7 @@ class ResponseStorage:
     @staticmethod
     def push(response):
         with ResponseStorage.__response_condition:
+            logger.info("Push response to the Response Storage: %s" % response)
             ResponseStorage.__response = response
             ResponseStorage.__response_condition.notify()
 
@@ -23,9 +23,13 @@ class ResponseStorage:
     def pop(timeout=5.0):
         with ResponseStorage.__response_condition:
             if ResponseStorage.__response is None:
-                ResponseStorage.__response_condition.wait_for(ResponseStorage.empty, timeout)
+                result = ResponseStorage.__response_condition.wait_for(ResponseStorage.__ready, timeout)
+                if result is True:
+                    logger.info("Pop response from the Response Storage: %s" % ResponseStorage.__response)
+                else:
+                    logger.info("Timeout - no response is obtained from Response Storage.")
 
-            response = ResponseStorage.__response
+            response = copy(ResponseStorage.__response)
             ResponseStorage.__response = None
 
         return response

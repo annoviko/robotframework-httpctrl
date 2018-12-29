@@ -1,10 +1,10 @@
 import http.client
 import json
 import threading
-import time
+
+from robot.api import logger
 
 from HttpCtrl.http_server import HttpServer
-from HttpCtrl.logger import Logger
 from HttpCtrl.request import Request
 from HttpCtrl.request_storage import RequestStorage
 from HttpCtrl.response_storage import ResponseStorage
@@ -45,10 +45,10 @@ class Client:
 
         self.__request_headers = {}
 
-        Logger.info("Request (type: '%s', method '%s') is sent to %s." % (connection_type, method, endpoint))
-        Logger.info("%s %s" % (method, url))
+        logger.info("Request (type: '%s', method '%s') is sent to %s." % (connection_type, method, endpoint))
+        logger.info("%s %s" % (method, url))
         if body is not None:
-            Logger.info("%s" % body)
+            logger.info("%s" % body)
 
         response = connection.getresponse()
         self.__response_status = response.status
@@ -92,7 +92,7 @@ class Server:
 
 
     def start_server(self, host, port):
-        Logger.info("Prepare HTTP server '%s:%s' and thread to serve it." % (host, port))
+        logger.info("Prepare HTTP server '%s:%s' and thread to serve it." % (host, port))
 
         self.__server = HttpServer(host, int(port))
         self.__thread = threading.Thread(target=self.__server.start, args=())
@@ -110,7 +110,7 @@ class Server:
         if self.__request is None:
             raise AssertionError("Timeout: request was not received.")
 
-        Logger.info("Request is received: %s" % self.__request)
+        logger.info("Request is received: %s" % self.__request)
 
 
     def get_request_method(self):
@@ -121,6 +121,10 @@ class Server:
         return self.__request.get_body()
 
 
+    def get_request_url(self):
+        return self.__request.get_url()
+
+
     def set_reply_header(self, key, value):
         self.__response_headers[key] = value
 
@@ -128,8 +132,6 @@ class Server:
     def reply_by(self, status, body=None):
         response = Response(int(status), body, self.__response_headers)
         ResponseStorage.push(response)
-
-        self.__response_headers.clear()
 
 
 
@@ -147,7 +149,7 @@ class Json:
 
 
     @staticmethod
-    def set_json_value(self, json_string, path, value):
+    def set_json_value(json_string, path, value):
         json_content = json.loads(json_string)
         keys = path.split('/')
 

@@ -1,5 +1,8 @@
 import threading
 
+from copy import copy
+from robot.api import logger
+
 
 class RequestStorage:
     __request = None
@@ -12,6 +15,7 @@ class RequestStorage:
     @staticmethod
     def push(request):
         with RequestStorage.__request_condition:
+            logger.info("Push request to the Request Storage: %s" % request)
             RequestStorage.__request = request
             RequestStorage.__request_condition.notify()
 
@@ -19,9 +23,13 @@ class RequestStorage:
     def pop(timeout=5.0):
         with RequestStorage.__request_condition:
             if RequestStorage.__request is None:
-                RequestStorage.__request_condition.wait_for(RequestStorage.__ready, timeout)
+                result = RequestStorage.__request_condition.wait_for(RequestStorage.__ready, timeout)
+                if result is True:
+                    logger.info("Pop request from the Request Storage: %s" % RequestStorage.__request)
+                else:
+                    logger.info("Timeout - no request is obtained from Request Storage.")
 
-            response = RequestStorage.__request
+            request = copy(RequestStorage.__request)
             RequestStorage.__request = None
 
-        return response
+        return request
