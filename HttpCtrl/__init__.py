@@ -20,6 +20,7 @@ class Client:
 
         self.__response_status = None
         self.__response_body = None
+        self.__response_headers = None
 
 
     def initialize_client(self, host, port):
@@ -52,6 +53,7 @@ class Client:
 
         response = connection.getresponse()
         self.__response_status = response.status
+        self.__response_headers = response.headers
         self.__response_body = response.read().decode('utf-8')
 
         connection.close()
@@ -73,6 +75,12 @@ class Client:
         status = self.__response_status
         self.__response_status = None
         return status
+
+
+    def get_response_headers(self):
+        headers = self.__response_headers
+        self.__response_headers = None
+        return headers
 
 
     def get_response_body(self):
