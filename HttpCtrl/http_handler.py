@@ -1,3 +1,28 @@
+"""!
+
+@brief HTTP server request handler.
+
+@authors Andrei Novikov (pyclustering@yandex.ru)
+@date 2018-2019
+@copyright GNU Public License
+
+@cond GNU_PUBLIC_LICENSE
+    PyClustering is free software: you can redistribute it and/or modify
+    it under the terms of the GNU General Public License as published by
+    the Free Software Foundation, either version 3 of the License, or
+    (at your option) any later version.
+
+    PyClustering is distributed in the hope that it will be useful,
+    but WITHOUT ANY WARRANTY; without even the implied warranty of
+    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+    GNU General Public License for more details.
+
+    You should have received a copy of the GNU General Public License
+    along with this program.  If not, see <http://www.gnu.org/licenses/>.
+@endcond
+
+"""
+
 import threading
 
 from http.server import SimpleHTTPRequestHandler
@@ -22,7 +47,7 @@ class HttpHandler(SimpleHTTPRequestHandler):
 
         logger.info("'GET' request is received from '%s:%s'." % (host, port))
 
-        request = Request(host, port, 'GET', self.path)
+        request = Request(host, port, 'GET', self.path, self.headers)
         RequestStorage.push(request)
 
         response = ResponseStorage.pop()
@@ -35,7 +60,7 @@ class HttpHandler(SimpleHTTPRequestHandler):
         logger.info("'POST' request is received from '%s:%s'." % (host, port))
 
         body = self.rfile.read(int(self.headers['Content-Length'])).decode('utf-8')
-        request = Request(host, port, 'POST', self.path, body)
+        request = Request(host, port, 'POST', self.path, self.headers, body)
         RequestStorage.push(request)
 
         response = ResponseStorage.pop()
@@ -47,7 +72,7 @@ class HttpHandler(SimpleHTTPRequestHandler):
 
         logger.info("'DELETE' request is received from '%s:%s'." % (host, port))
 
-        request = Request(host, port, 'DELETE', self.path)
+        request = Request(host, port, 'DELETE', self.path, self.headers)
         RequestStorage.push(request)
 
         response = ResponseStorage.pop()
