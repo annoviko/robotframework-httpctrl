@@ -79,6 +79,18 @@ class HttpHandler(SimpleHTTPRequestHandler):
         self.__send_response(response)
 
 
+    def log_message(self, format, *args):
+        return
+
+
+    def log_error(self, format, *args):
+        return
+
+
+    def log_request(self, code='-', size='-'):
+        return
+
+
     def __send_response(self, response):
         if response is None:
             logger.error("Response is not provided for incoming request.")
