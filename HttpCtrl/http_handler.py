@@ -67,6 +67,19 @@ class HttpHandler(SimpleHTTPRequestHandler):
         self.__send_response(response)
 
 
+    def do_PATCH(self):
+        host, port = self.client_address[:2]
+
+        logger.info("'PATCH' request is received from '%s:%s'." % (host, port))
+
+        body = self.rfile.read(int(self.headers['Content-Length'])).decode('utf-8')
+        request = Request(host, port, 'PATCH', self.path, self.headers, body)
+        RequestStorage.push(request)
+
+        response = ResponseStorage.pop()
+        self.__send_response(response)
+
+
     def do_DELETE(self):
         host, port = self.client_address[:2]
 
