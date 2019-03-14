@@ -30,13 +30,42 @@ import threading
 from robot.api import logger
 
 from HttpCtrl.http_server import HttpServer
-from HttpCtrl.request import Request
 from HttpCtrl.request_storage import RequestStorage
 from HttpCtrl.response_storage import ResponseStorage
 from HttpCtrl.response import Response
 
 
 class Client:
+    """
+    HTTP/HTTPS Client Library that provides comprehensive interface to Robot Framework.
+
+    Example how to send GET request to obtain origin IP address and check that response is not empty.
+
+    .. code:: robotframework
+
+        *** Settings ***
+
+        Library         HttpCtrl.Client
+        Library         HttpCtrl.Json
+
+
+        *** Test Cases ***
+
+        Get Origin Address
+            Initialize Client   www.httpbin.org
+            Send HTTP Request   GET   /ip
+
+            ${response status}=   Get Response Status
+            ${response body}=     Get Response Body
+
+            ${expected status}=   Convert To Integer   200
+            Should Be Equal   ${response status}   ${expected status}
+
+            ${origin}=    Get Json Value   ${response body}   origin
+            Should Not Be Empty   ${origin}
+
+    """
+
     def __init__(self):
         self.__host = None
         self.__port = None
@@ -48,9 +77,23 @@ class Client:
         self.__response_headers = None
 
 
-    def initialize_client(self, host, port):
+    def initialize_client(self, host, port=None):
+        """
+        Initialize client using host and port of a server which will be used for communication.
+
+        `host` (string): Host of a server which client will use for communication.
+
+        `port` (string|integer): Port of a server which client will use for communication. Optional argument.
+
+        Example when server is located on machine with address 192.168.0.1 and port 8000
+        | Initialize Client | 192.168.0.1 | 8000 |
+
+        Example when your server has name:
+        | Initialize Client | www.httpbin.org |
+
+        """
         self.__host = host
-        self.__port = port
+        self.__port = port or ""
 
 
     def __send_request(self, connection_type, method, url, body):

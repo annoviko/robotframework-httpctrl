@@ -17,30 +17,26 @@ Dependencies
 Examples
 ========
 
-Send POST request to HTTP server and check for negative response from it (403 Forbidden is expected).
+Send GET request to obtain origin IP address and check that is not empty.
 
 .. code:: robot-framework
 
     *** Settings ***
 
-    Library         Collections
-    Library         OperatingSystem
     Library         HttpCtrl.Client
-
-    Test Setup      Start HTTP Client
+    Library         HttpCtrl.Json
 
     *** Test Cases ***
-    Start Task With Negative Expectation
-        ${request body}=   Get File   data/start_task_json
-        ${url}=            http://192.168.55.78:8080/server_api/v1/task
 
-        Set Request Header    Content-Type   application/json-rpc
-        Send HTTP Request     POST   ${url}   ${request body}
+    Get Origin Address
+        Initialize Client   www.httpbin.org
+        Send HTTP Request   GET   /ip
 
         ${response status}=   Get Response Status
-        ${expected status}=   Convert To Integer   403
+        ${response body}=     Get Response Body
+
+        ${expected status}=   Convert To Integer   200
         Should Be Equal   ${response status}   ${expected status}
 
-    *** Keywords ***
-    Start HTTP Client
-        Initialize Client   192.168.55.77   8000
+        ${origin}=    Get Json Value   ${response body}   origin
+        Should Not Be Empty   ${origin}
