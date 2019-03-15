@@ -37,9 +37,10 @@ from HttpCtrl.response import Response
 
 class Client:
     """
+
     HTTP/HTTPS Client Library that provides comprehensive interface to Robot Framework.
 
-    Example how to send GET request to obtain origin IP address and check that response is not empty.
+    Example how to send GET request to obtain origin IP address and check that response is not empty:
 
     .. code:: robotframework
 
@@ -64,6 +65,35 @@ class Client:
             ${origin}=    Get Json Value   ${response body}   origin
             Should Not Be Empty   ${origin}
 
+    Example how to sent PATCH request using HTTPS:
+
+    .. code:: robotframework
+
+        *** Settings ***
+
+        Library         HttpCtrl.Client
+        Library         HttpCtrl.Json
+
+        *** Test Cases ***
+
+        Send HTTPS PATCH Request
+            Initialize Client   www.httpbin.org
+
+            ${body}=   Set Variable   { "volume": 77, "mute": false }
+            Send HTTPS Request   PATCH   /patch   ${body}
+
+            ${response status}=   Get Response Status
+            ${response body}=     Get Response Body
+
+            ${expected status}=   Convert To Integer   200
+            Should Be Equal   ${response status}   ${expected status}
+
+            ${volume}=   Get Json Value   ${response body}   json/volume
+            Should Be Equal   ${volume}   ${77}
+
+            ${mute}=   Get Json Value   ${response body}   json/mute
+            Should Be Equal   ${mute}   ${False}
+
     """
 
     def __init__(self):
@@ -79,17 +109,32 @@ class Client:
 
     def initialize_client(self, host, port=None):
         """
+
         Initialize client using host and port of a server which will be used for communication.
 
-        `host` (string): Host of a server which client will use for communication.
+        `host` [in] (string): Host of a server which client will use for communication.
 
-        `port` (string|integer): Port of a server which client will use for communication. Optional argument.
+        `port` [in] (string|integer): Port of a server which client will use for communication. Optional argument.
 
-        Example when server is located on machine with address 192.168.0.1 and port 8000
+        Example when server is located on machine with address 192.168.0.1 and port 8000:
+
+        +-------------------+-------------+------+
         | Initialize Client | 192.168.0.1 | 8000 |
+        +-------------------+-------------+------+
+
+        .. code:: robotframework
+
+            Initialize Client   192.168.0.1   8000
 
         Example when your server has name:
+
+        +-------------------+-----------------+
         | Initialize Client | www.httpbin.org |
+        +-------------------+-----------------+
+
+        .. code:: robotframework
+
+            Initialize Client   www.httpbin.org
 
         """
         self.__host = host
@@ -128,30 +173,158 @@ class Client:
 
 
     def send_http_request(self, method, url, body=None):
+        """
+
+        Send HTTP request with specified parameters.
+
+        `method` [in] (string): Method that is used to send request (GET, POST, PUT, DELETE, etc., see: RFC 7231, RFC 5789).
+
+        `url` [in] (string): Path to the resource, for example, in case address www.httpbin.org/ip - '/ip' is an path.
+
+        `body` [in] (string): Body of the request.
+
+        Example where GET request is sent to server:
+
+        +-------------------+-----+-----+
+        | Send HTTP Request | GET | /ip |
+        +-------------------+-----+-----+
+
+        .. code:: robotframework
+
+            Send HTTP Request   GET   /ip
+
+        Example where POST request is sent with specific body:
+
+        +-------------------+------+-------+-------------------------------+
+        | Send HTTP Request | POST | /post | { "message": "Hello World!" } |
+        +-------------------+------+-------+-------------------------------+
+
+        .. code:: robotframework
+
+            ${body}=   Set Variable   { "message": "Hello World!" }
+            Send HTTP Request   POST   /post   ${body}
+
+        """
         self.__send_request('http', method, url, body)
 
 
     def send_https_request(self, method, url, body=None):
+        """
+
+        Send HTTPS request with specified parameters.
+
+        `method` [in] (string): Method that is used to send request (GET, POST, DELETE, etc., see: RFC 7231, RFC 5789).
+
+        `url` [in] (string): Path to the resource, for example, in case address www.httpbin.org/ip - '/ip' is an path.
+
+        `body` [in] (string): Body of the request.
+
+        Example where PATCH request to update parameters:
+
+        +--------------------+-------+--------+---------------------------------+
+        | Send HTTPS Request | PATCH | /patch | { "volume": 77, "mute": false } |
+        +--------------------+-------+--------+---------------------------------+
+
+        .. code:: robotframework
+
+            ${body}=   Set Variable   { "volume": 77, "mute": false }
+            Send HTTPS Request   PATCH   /patch   ${body}
+
+        """
         self.__send_request('https', method, url, body)
 
 
     def set_request_header(self, key, value):
+        """
+
+        Set HTTP header for request that is going to be sent. Should be called before 'Send HTTP Request' or
+        'Send HTTPS Request'.
+
+        `key` [in] (string): Header name that should be used in the request (be aware of case-sensitive headers).
+
+        `value` [in] (string): Value that corresponds to specified header.
+
+        Example where several specific headers 'Content-Type' and 'Some Header' are set to request:
+
+        +--------------------+------------------+-------------------+
+        | Set Request Header | Important-Header | important-value   |
+        +--------------------+------------------+-------------------+
+        | Set Request Header | Some-Header      | some-value-for-it |
+        +--------------------+------------------+-------------------+
+
+        .. code:: robotframework
+
+            Set Request Header   Important-Header   important-value
+            Set Request Header   Some-Header        some-value-for-it
+
+        """
         self.__request_headers[key] = value
 
 
     def get_response_status(self):
+        """
+
+        Return response code as an integer value. This method should be called once after 'Send HTTP Request' or
+        'Send HTTPS Request'. It returns None, in case of attempt to get response code more then once or if
+        'Send HTTP Request' or 'Send HTTPS Request' is not called before.
+
+        Example how to get response code:
+
+        +---------------------+---------------------+
+        | ${response status}= | Get Response Status |
+        +---------------------+---------------------+
+
+        .. code:: robotframework
+
+            ${response status}=   Get Response Status
+
+        """
         status = self.__response_status
         self.__response_status = None
         return status
 
 
     def get_response_headers(self):
+        """
+
+        Return response headers as a dictionary. This method should be called once after 'Send HTTP Request' or
+        'Send HTTPS Request'. It returns None, in case of attempt to get response code more then once or if
+        'Send HTTP Request' or 'Send HTTPS Request' is not called before.
+
+        Example how to get response code:
+
+        +----------------------+----------------------+
+        | ${response headers}= | Get Response Headers |
+        +----------------------+----------------------+
+
+        .. code:: robotframework
+
+            ${response headers}=   Get Response Headers
+
+        """
         headers = self.__response_headers
         self.__response_headers = None
         return headers
 
 
     def get_response_body(self):
+        """
+
+        Return response body as a string. This method should be called once after 'Send HTTP Request' or
+        'Send HTTPS Request'. It returns None, in case of attempt to get response code more then once or if
+        'Send HTTP Request' or 'Send HTTPS Request' is not called before.
+
+        Example how to get response code:
+
+        +-------------------+-------------------+
+        | ${response body}= | Get Response Body |
+        +-------------------+-------------------+
+
+        .. code:: robotframework
+
+            ${response body}=   Get Response Body
+
+        """
         body = self.__response_body
         self.__response_body = None
         return body
