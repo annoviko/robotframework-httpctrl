@@ -23,6 +23,8 @@
 
 """
 
+import threading
+
 from socketserver import TCPServer
 
 from HttpCtrl.http_handler import HttpHandler
@@ -36,6 +38,9 @@ class HttpServer:
         self.__handler = None
         self.__server = None
 
+        self.__is_run_state = False
+        self.__cv_run = threading.Condition()
+
 
     def __del__(self):
         if self.__server is not None:
@@ -47,6 +52,10 @@ class HttpServer:
         self.__server = TCPServer((self.__host, self.__port), self.__handler)
 
         try:
+            with self.__cv_run:
+                self.__is_run_state = True
+                self.__cv_run.notify()
+
             self.__server.serve_forever()
 
         except Exception as exception:
@@ -54,7 +63,16 @@ class HttpServer:
             raise exception
 
 
+    def wait_run_state(self):
+        with self.__cv_run:
+            while not self.__is_run_state:
+                self.__cv_run.wait()
+
+
     def stop(self):
         if self.__server is not None:
             self.__server.shutdown()
             self.__server.server_close()
+
+            with self.__cv_run:
+                self.__is_run_state = False
