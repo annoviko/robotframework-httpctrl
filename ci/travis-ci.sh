@@ -17,7 +17,7 @@ echo "Path '$PYTHONPATH' is exported."
 # run tests
 echo "Run tests for HttpCtrl."
 cd ../tst
-python3 -m robot server_methods.robot
+python3 -m robot *.robot
 
 # generate documentation
 echo "Generate documentation for HttpCtrl."

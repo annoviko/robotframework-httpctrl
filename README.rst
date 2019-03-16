@@ -1,3 +1,5 @@
+|Build Status Linux|
+
 HttpCtrl library for Robot Framework
 ====================================
 
@@ -100,3 +102,7 @@ Send PATCH request using HTTPS protocol:
 
         ${mute}=   Get Json Value From String   ${response body}   json/mute
         Should Be Equal   ${mute}   ${False}
+
+
+.. |Build Status Linux| image:: https://travis-ci.org/annoviko/robotframework-httpctrl.svg?branch=master
+   :target: https://travis-ci.org/annoviko/https://travis-ci.org/annoviko/robotframework-httpctrl
