@@ -63,8 +63,8 @@ class HttpServer:
 
     def wait_run_state(self):
         with self.__cv_run:
-            while not self.__is_run_state:
-                self.__cv_run.wait()
+            while self.__is_run_state is False:
+                self.__cv_run.wait(0.1)
 
 
     def stop(self):
