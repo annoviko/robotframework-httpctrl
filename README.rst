@@ -163,4 +163,4 @@ request for correctness.
 
 
 .. |Build Status Linux| image:: https://travis-ci.org/annoviko/robotframework-httpctrl.svg?branch=master
-   :target: https://travis-ci.org/annoviko/https://travis-ci.org/annoviko/robotframework-httpctrl
+   :target: https://travis-ci.org/annoviko/robotframework-httpctrl
