@@ -4,8 +4,13 @@ sudo pip3 install -q robotframework
 # packages to generate documentation
 sudo pip3 install -q docutils pygments
 
+# export path to the library
+cd src
+PYTHONPATH=`pwd`
+export PYTHONPATH=${PYTHONPATH}
+
 # run tests
-cd tst
+cd ../tst
 python3 -m robot *.robot
 
 # generate documentation
