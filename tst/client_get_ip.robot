@@ -16,7 +16,7 @@ Get Origin Address
     ${expected status}=   Convert To Integer   200
     Should Be Equal   ${response status}   ${expected status}
 
-    ${origin}=    Get Json Value   ${response body}   origin
+    ${origin}=    Get Json Value From String   ${response body}   origin
     Should Not Be Empty   ${origin}
 
 

@@ -38,7 +38,7 @@ from HttpCtrl.response import Response
 class Client:
     """
 
-    HTTP/HTTPS Client Library that provides comprehensive interface to Robot Framework.
+    HTTP/HTTPS Client Library that provides comprehensive interface to Robot Framework to control HTTP/HTTPS client.
 
     Example how to send GET request to obtain origin IP address and check that response is not empty:
 
@@ -48,7 +48,6 @@ class Client:
 
         Library         HttpCtrl.Client
         Library         HttpCtrl.Json
-
 
         *** Test Cases ***
 
@@ -62,7 +61,7 @@ class Client:
             ${expected status}=   Convert To Integer   200
             Should Be Equal   ${response status}   ${expected status}
 
-            ${origin}=    Get Json Value   ${response body}   origin
+            ${origin}=    Get Json Value From String   ${response body}   origin
             Should Not Be Empty   ${origin}
 
     Example how to sent PATCH request using HTTPS:
@@ -88,10 +87,10 @@ class Client:
             ${expected status}=   Convert To Integer   200
             Should Be Equal   ${response status}   ${expected status}
 
-            ${volume}=   Get Json Value   ${response body}   json/volume
+            ${volume}=   Get Json Value From String   ${response body}   json/volume
             Should Be Equal   ${volume}   ${77}
 
-            ${mute}=   Get Json Value   ${response body}   json/mute
+            ${mute}=   Get Json Value From String   ${response body}   json/mute
             Should Be Equal   ${mute}   ${False}
 
     """
@@ -102,6 +101,7 @@ class Client:
 
         self.__request_headers = {}
 
+        self.__response_guard = threading.Lock()
         self.__response_status = None
         self.__response_body = None
         self.__response_headers = None
@@ -122,7 +122,7 @@ class Client:
         | Initialize Client | 192.168.0.1 | 8000 |
         +-------------------+-------------+------+
 
-        .. code:: robotframework
+        .. code:: text
 
             Initialize Client   192.168.0.1   8000
 
@@ -132,7 +132,7 @@ class Client:
         | Initialize Client | www.httpbin.org |
         +-------------------+-----------------+
 
-        .. code:: robotframework
+        .. code:: text
 
             Initialize Client   www.httpbin.org
 
@@ -141,7 +141,7 @@ class Client:
         self.__port = port or ""
 
 
-    def __send_request(self, connection_type, method, url, body):
+    def __send(self, connection_type, method, url, body):
         if self.__host is None or self.__port is None:
             raise AssertionError("Client is not initialized (host and port are empty).")
 
@@ -164,18 +164,43 @@ class Client:
         if body is not None:
             logger.info("%s" % body)
 
-        response = connection.getresponse()
-        self.__response_status = response.status
-        self.__response_headers = response.headers
-        self.__response_body = response.read().decode('utf-8')
+        return connection
 
-        connection.close()
+
+    def __wait_response(self, connection):
+        try:
+            server_response = connection.getresponse()
+
+            with self.__response_guard:
+                self.__response_status = server_response.status
+                self.__response_headers = server_response.headers
+                self.__response_body = server_response.read().decode('utf-8')
+
+        except Exception as exception:
+            logger.info("Server has not provided response to the request (reason: %s)." % str(exception))
+
+        finally:
+            connection.close()
+
+
+    def __send_request(self, connection_type, method, url, body):
+        connection = self.__send(connection_type, method, url, body)
+        self.__wait_response(connection)
+
+
+    def __sent_request_async(self, connection_type, method, url, body):
+        connection = self.__send(connection_type, method, url, body)
+
+        wait_thread = threading.Thread(target=self.__wait_response, args=(connection,))
+        wait_thread.daemon = True
+        wait_thread.start()
 
 
     def send_http_request(self, method, url, body=None):
         """
 
-        Send HTTP request with specified parameters.
+        Send HTTP request with specified parameters. This function is blocked until server replies or
+        timeout connection.
 
         `method` [in] (string): Method that is used to send request (GET, POST, PUT, DELETE, etc., see: RFC 7231, RFC 5789).
 
@@ -189,7 +214,7 @@ class Client:
         | Send HTTP Request | GET | /ip |
         +-------------------+-----+-----+
 
-        .. code:: robotframework
+        .. code:: text
 
             Send HTTP Request   GET   /ip
 
@@ -199,13 +224,39 @@ class Client:
         | Send HTTP Request | POST | /post | { "message": "Hello World!" } |
         +-------------------+------+-------+-------------------------------+
 
-        .. code:: robotframework
+        .. code:: text
 
             ${body}=   Set Variable   { "message": "Hello World!" }
             Send HTTP Request   POST   /post   ${body}
 
         """
         self.__send_request('http', method, url, body)
+
+
+    def send_http_request_async(self, method, url, body=None):
+        """
+
+        Send HTTP request with specified parameters asynchronously. Non-blocking function to send request that waits
+        for reply using separate thread.
+
+        `method` [in] (string): Method that is used to send request (GET, POST, PUT, DELETE, etc., see: RFC 7231, RFC 5789).
+
+        `url` [in] (string): Path to the resource, for example, in case address www.httpbin.org/ip - '/ip' is an path.
+
+        `body` [in] (string): Body of the request.
+
+        Example where PUT request is sent with specific body:
+
+        +-------------------------+-----+------+---------------+
+        | Send HTTP Request Async | PUT | /put | Hello Server! |
+        +-------------------------+-----+------+---------------+
+
+        .. code:: text
+
+            Send HTTP Request Async   PUT   /put   Hello Server!
+
+        """
+        self.__sent_request_async('http', method, url, body)
 
 
     def send_https_request(self, method, url, body=None):
@@ -225,13 +276,39 @@ class Client:
         | Send HTTPS Request | PATCH | /patch | { "volume": 77, "mute": false } |
         +--------------------+-------+--------+---------------------------------+
 
-        .. code:: robotframework
+        .. code:: text
 
             ${body}=   Set Variable   { "volume": 77, "mute": false }
             Send HTTPS Request   PATCH   /patch   ${body}
 
         """
         self.__send_request('https', method, url, body)
+
+
+    def send_https_request_async(self, method, url, body=None):
+        """
+
+        Send HTTPS request with specified parameters asynchronously. Non-blocking function to send request that waits
+        for reply using separate thread.
+
+        `method` [in] (string): Method that is used to send request (GET, POST, DELETE, etc., see: RFC 7231, RFC 5789).
+
+        `url` [in] (string): Path to the resource, for example, in case address www.httpbin.org/ip - '/ip' is an path.
+
+        `body` [in] (string): Body of the request.
+
+        Example where DELETE request is sent with specific body:
+
+        +--------------------------+--------+---------+
+        | Send HTTPS Request Async | DELETE | /delete |
+        +--------------------------+--------+---------+
+
+        .. code:: text
+
+            Send HTTPS Request Async   DELETE   /delete
+
+        """
+        self.__sent_request_async('http', method, url, body)
 
 
     def set_request_header(self, key, value):
@@ -252,7 +329,7 @@ class Client:
         | Set Request Header | Some-Header      | some-value-for-it |
         +--------------------+------------------+-------------------+
 
-        .. code:: robotframework
+        .. code:: text
 
             Set Request Header   Important-Header   important-value
             Set Request Header   Some-Header        some-value-for-it
@@ -274,14 +351,15 @@ class Client:
         | ${response status}= | Get Response Status |
         +---------------------+---------------------+
 
-        .. code:: robotframework
+        .. code:: text
 
             ${response status}=   Get Response Status
 
         """
-        status = self.__response_status
-        self.__response_status = None
-        return status
+        with self.__response_guard:
+            status = self.__response_status
+            self.__response_status = None
+            return status
 
 
     def get_response_headers(self):
@@ -297,14 +375,15 @@ class Client:
         | ${response headers}= | Get Response Headers |
         +----------------------+----------------------+
 
-        .. code:: robotframework
+        .. code:: text
 
             ${response headers}=   Get Response Headers
 
         """
-        headers = self.__response_headers
-        self.__response_headers = None
-        return headers
+        with self.__response_guard:
+            headers = self.__response_headers
+            self.__response_headers = None
+            return headers
 
 
     def get_response_body(self):
@@ -320,18 +399,64 @@ class Client:
         | ${response body}= | Get Response Body |
         +-------------------+-------------------+
 
-        .. code:: robotframework
+        .. code:: text
 
             ${response body}=   Get Response Body
 
         """
-        body = self.__response_body
-        self.__response_body = None
-        return body
+        with self.__response_guard:
+            body = self.__response_body
+            self.__response_body = None
+            return body
 
 
 
 class Server:
+    """
+
+    HTTP Server Library that provides comprehensive interface to Robot Framework to control HTTP server.
+
+    Here is an example of receiving POST request. In this example HTTP client sends POST request to HTTP server. HTTP
+    server receives it and check incoming request for correctness.
+
+    .. code:: robotframework
+
+        *** Settings ***
+
+        Library         HttpCtrl.Client
+        Library         HttpCtrl.Server
+
+        Test Setup       Initialize HTTP Client And Server
+        Test Teardown    Terminate HTTP Server
+
+        *** Test Cases ***
+
+        Receive And Reply To POST
+            ${request body}=   Set Variable   { "message": "Hello!" }
+            Send HTTP Request Async   POST   /post   ${request body}
+
+            Wait For Request
+            Reply By   200
+
+            ${method}=   Get Request Method
+            ${url}=      Get Request Url
+            ${body}=     Get Request Body
+
+            Should Be Equal   ${method}   POST
+            Should Be Equal   ${url}      /post
+            Should Be Equal   ${body}     ${request body}
+
+        *** Keywords ***
+
+        Initialize HTTP Client And Server
+            Initialize Client   127.0.0.1   8000
+            Start Server        127.0.0.1   8000
+
+        Terminate HTTP Server
+            Stop Server
+
+    """
+
     def __init__(self):
         self.__response_headers = {}
         self.__request = None
@@ -341,6 +466,57 @@ class Server:
 
 
     def start_server(self, host, port):
+        """
+
+        Start HTTP server on specific address and port. Server should be closed when it is not required, for example,
+        when test is over. In case of double call of \`Start Server\`, the previous will be stopped and only then the
+        next one HTTP server will be started.
+
+        `host` [in] (string): Address that will be used by HTTP server to listen.
+
+        `port` [in] (string): Port that will be used by HTTP server to listen.
+
+        Example how to initialize server:
+
+        +--------------+-----------+------+
+        | Start Server | 127.0.0.1 | 8000 |
+        +--------------+-----------+------+
+
+        .. code:: text
+
+            Start Server   127.0.0.1   8000
+
+        It is a good practice to start server and stop it using 'Test Setup' and 'Test Teardown', for example:
+
+        .. code:: robotframework
+
+            *** Settings ***
+
+            Library         HttpCtrl.Server
+
+            Test Setup       Initialize HTTP Server
+            Test Teardown    Terminate HTTP Server
+
+            *** Test Cases ***
+
+            HTTP Server Based Test
+                Wait For Request
+                Reply By   200
+
+                # Check incoming request
+
+            *** Keywords ***
+
+            Initialize HTTP Server
+                Start Server        127.0.0.1   8000
+
+            Terminate HTTP Server
+                Stop Server
+
+        """
+
+        self.stop_server()
+
         logger.info("Prepare HTTP server '%s:%s' and thread to serve it." % (host, port))
 
         self.__server = HttpServer(host, int(port))
@@ -352,12 +528,56 @@ class Server:
 
 
     def stop_server(self):
+        """
+
+        Stop HTTP server if it has been started. This function should be called if server has been started.
+
+        Example how to stop server:
+
+        +-------------+
+        | Stop Server |
+        +-------------+
+
+        .. code:: text
+
+            Stop Server
+
+        It is a good practice to start server and stop it using `Test Setup` and `Test Teardown` - see example for
+        \`Start Server\`.
+
+        """
         if self.__server is not None:
             self.__server.stop()
             self.__thread.join()
 
+            self.__response_headers = {}
+            self.__request = None
+
+            self.__server = None
+            self.__thread = None
+
+            logger.info("HTTP server is stopped.")
+
 
     def wait_for_request(self):
+        """
+
+        Command to server to wait incoming request. This call is blocked until HTTP request arrives. Basically server
+        receives all requests after \`Start Server\` and places them to internal queue. When test call function
+        \`Wait For Request\` it checks the queue and if it is not empty returns the first request in the queue. If the
+        queue is empty then function waits when the server receives request and place it to the queue.
+
+        Example how to wait request.
+
+        +------------------+
+        | Wait For Request |
+        +------------------+
+
+        .. code:: text
+
+            Wait For Request
+
+        """
         self.__request = RequestStorage.pop()
         if self.__request is None:
             raise AssertionError("Timeout: request was not received.")
@@ -366,54 +586,321 @@ class Server:
 
 
     def get_request_method(self):
+        """
+
+        Returns method of received request as a string. This function should be called after \`Wait For Request\`,
+        otherwise None is returned.
+
+        Example how to obtain method of incoming request:
+
+        +--------------------+
+        | Get Request Method |
+        +--------------------+
+
+        .. code:: text
+
+            Get Request Method
+
+        """
         return self.__request.get_method()
 
 
     def get_request_body(self):
+        """
+
+        Returns body of received request as a string. This function should be called after \`Wait For Request\`,
+        otherwise None is returned.
+
+        Example how to obtain body of incoming request:
+
+        +------------------+
+        | Get Request Body |
+        +------------------+
+
+        .. code:: text
+
+            Get Request Body
+
+        """
         return self.__request.get_body()
 
 
     def get_request_headers(self):
+        """
+
+        Returns headers of received request as a dictionary. This function should be called after \`Wait For Request\`,
+        otherwise None is returned.
+
+        Example how to obtain headers of incoming request:
+
+        +---------------------+
+        | Get Request Headers |
+        +---------------------+
+
+        .. code:: text
+
+            Get Request Headers
+
+        """
         return self.__request.get_headers()
 
 
     def get_request_url(self):
+        """
+
+        Returns URL of received request as a string. This function should be called after \`Wait For Request\`,
+        otherwise None is returned.
+
+        Example how to obtain URL of incoming request:
+
+        +-----------------+
+        | Get Request Url |
+        +-----------------+
+
+        .. code:: text
+
+            Get Request Url
+
+        """
         return self.__request.get_url()
 
 
     def set_reply_header(self, key, value):
+        """
+
+        Set or insert new (if it does not exist yet) header to HTTP response. To send response itself function
+        \`Reply By\` is used.
+
+        `key` [in] (string): HTTP header name.
+        `value` [in] (string): HTTP header value.
+
+        Example how to set header for HTTP response:
+
+        +------------------+--------+----------------+
+        | Set Reply Header | Origin | 127.0.0.1:8000 |
+        +------------------+--------+----------------+
+
+        .. code:: text
+
+            Set Reply Header   Origin   127.0.0.1:8000
+
+        Example how to set several headers for HTTP response:
+
+        +------------------+-------------+----------------+
+        | Set Reply Header | Origin      | 127.0.0.1:8001 |
+        +------------------+-------------+----------------+
+        | Set Reply Header | City-Source | St.-Petersburg |
+        +------------------+-------------+----------------+
+
+        .. code:: text
+
+            Set Reply Header   Origin        127.0.0.1:8000
+            Set Reply Header   City-Source   St.-Petersburg
+
+        """
         self.__response_headers[key] = value
 
 
     def reply_by(self, status, body=None):
+        """
+
+        Send response using specified HTTP code and body. This function should be called after \`Wait For Request\`.
+
+        `status` [in] (string): HTTP status code for response.
+        `body` [in] (string): Body that should contain response.
+
+        Example how to reply by 204 (No Content) to incoming request:
+
+        +----------+-----+
+        | Reply By | 204 |
+        +----------+-----+
+
+        .. code:: text
+
+            Reply By   204
+
+        Example how to reply 200 (OK) with body to incoming request:
+
+        +----------+-----+--------------------------+
+        | Reply By | 200 | { "status": "accepted" } |
+        +----------+-----+--------------------------+
+
+        .. code:: text
+
+            ${response body}=   Set Variable   { "status": "accepted" }
+            Reply By   204   ${response body}
+
+        """
         response = Response(int(status), body, self.__response_headers)
         ResponseStorage.push(response)
 
 
 
 class Json:
+    """
+
+    Json Library provide comprehensive interface to Robot Framework to work with JSON structures that are actively
+    used for Internet communication nowadays.
+
+    Example where Json values are updated in a string and then read from it:
+
+    .. code:: robotframework
+
+        *** Settings ***
+
+        Library         HttpCtrl.Client
+        Library         HttpCtrl.Json
+
+        *** Test Cases ***
+
+        Write And Read Json Nesting Value
+            ${json template}=   Catenate
+            ...   {
+            ...      "book": {
+            ...         "title": "St Petersburg: A Cultural History",
+            ...         "author": "Solomon Volkov",
+            ...         "price": 0,
+            ...         "currency": ""
+            ...      }
+            ...   }
+
+            ${catalog}=   Set Json Value In String   ${json template}   book/price      ${500}
+            ${catalog}=   Set Json Value In String   ${catalog}         book/currency   RUB
+
+            ${title}=      Get Json Value From String   ${catalog}   book/title
+            ${price}=      Get Json Value From String   ${catalog}   book/price
+            ${currency}=   Get Json Value From String   ${catalog}   book/currency
+
+
+    Here is an another example where Json array's values are updated and then read from it:
+
+    .. code:: robotframework
+
+        *** Settings ***
+
+        Library         HttpCtrl.Client
+        Library         HttpCtrl.Json
+
+        *** Test Cases ***
+
+        Write And Read Json Array Value
+            ${json template}=   Catenate
+            ...   {
+            ...      "array": [
+            ...         "red", "green", "blue", "yellow"
+            ...      ]
+            ...   }
+
+            ${colors}=   Set Json Value In String   ${json template}   array/3   white
+
+            ${red}=     Get Json Value From String   ${colors}   array/0
+            ${green}=   Get Json Value From String   ${colors}   array/1
+            ${blue}=    Get Json Value From String   ${colors}   array/2
+            ${white}=   Get Json Value From String   ${colors}   array/3
+
+    """
+
     @staticmethod
-    def get_json_value(json_string, path):
+    def get_json_value_from_string(json_string, path):
+        """
+
+        Return value from Json that is represented by string. Be aware, returned value's type corresponds to its
+        type in Json.
+
+        `json_string` [in] (string): Json that is represented by string.
+
+        `path` [in] (string): Path to Json node value.
+
+        Example how to obtain Json value:
+
+        +-----------+----------------------------+------------------------------------+------------+
+        | ${value}= | Get Json Value From String | { "book": { "title": "Unknown" } } | book/title |
+        +-----------+----------------------------+------------------------------------+------------+
+
+        .. code:: text
+
+            ${json}=    Catenate
+            ...   {
+            ...      "book": {
+            ...         "title": "Unknown"
+            ...      }
+            ...   }
+            ${value}=   Get Json Value From String   ${json}   book/title
+
+        """
         json_content = json.loads(json_string)
         keys = path.split('/')
 
         current_element = json_content
         for key in keys:
+            if isinstance(current_element, list):
+                key = int(key)
+
             current_element = current_element[key]
 
         return current_element
 
 
     @staticmethod
-    def set_json_value(json_string, path, value):
+    def set_json_value_in_string(json_string, path, value):
+        """
+
+        Set value in Json that is represented by string. Be aware type of updated value should correspond to its
+        type in Json, otherwise type will be changed with new value.
+
+        `json_string` [in] (string): Json that is represented by string.
+
+        `path` [in] (string): Path to Json node value.
+
+        `value` [in] (any): New value for the Json node.
+
+        Example how to set Json value:
+
+        +-----------+--------------------------+------------------------------------+------------+--------+
+        | ${value}= | Set Json Value In String | { "book": { "title": "Unknown" } } | book/title | "Math" |
+        +-----------+--------------------------+------------------------------------+------------+--------+
+
+        .. code:: text
+
+            ${json}=    Catenate
+            ...   {
+            ...      "book": {
+            ...         "title": "Unknown"
+            ...      }
+            ...   }
+            ${value}=   Set Json Value In String   ${json}   book/title   "Math"
+
+        Example how to set value in Json array node:
+
+        +-----------+--------------------------+--------------------------------------+---------+---------+
+        | ${value}= | Set Json Value In String | { "array": [ "one", "two", "ten" ] } | array/2 | "three" |
+        +-----------+--------------------------+--------------------------------------+---------+---------+
+
+        .. code:: text
+
+            ${json}=    Catenate
+            ...   {
+            ...      "array": [
+            ...         "one", "two", "ten"
+            ...      ]
+            ...   }
+            ${value}=   Set Json Value In String   ${json}   array/2   "three"
+
+        """
         json_content = json.loads(json_string)
         keys = path.split('/')
 
         current_element = json_content
         for key in keys:
             if key == keys[-1]:
+                if isinstance(current_element, list):
+                    key = int(key)
+
                 current_element[key] = value
             else:
+                if isinstance(current_element, list):
+                    key = int(key)
+
                 current_element = current_element[key]
 
         return json.dumps(json_content)

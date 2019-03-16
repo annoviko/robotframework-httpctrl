@@ -18,7 +18,7 @@ Send HTTP POST Request
     ${expected status}=   Convert To Integer   200
     Should Be Equal   ${response status}   ${expected status}
 
-    ${message}=    Get Json Value   ${response body}   data
+    ${message}=    Get Json Value From String   ${response body}   data
     Should Be Equal   ${message}   ${body}
 
 
@@ -34,10 +34,10 @@ Send HTTPS PATCH Request
     ${expected status}=   Convert To Integer   200
     Should Be Equal   ${response status}   ${expected status}
 
-    ${volume}=   Get Json Value   ${response body}   json/volume
+    ${volume}=   Get Json Value From String   ${response body}   json/volume
     Should Be Equal   ${volume}   ${77}
 
-    ${mute}=   Get Json Value   ${response body}   json/mute
+    ${mute}=   Get Json Value From String   ${response body}   json/mute
     Should Be Equal   ${mute}   ${False}
 
 
@@ -60,7 +60,7 @@ Send HTTP PUT Request
     ${response body}=     Get Response Body
 
     Should Be Equal   ${response status}   ${200}
-    ${data}=   Get Json Value   ${response body}   data
+    ${data}=   Get Json Value From String   ${response body}   data
     Should Be Equal   ${data}   ${body}
 
 

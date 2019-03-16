@@ -1,14 +1,14 @@
 # package to test
 pip3 install -q robotframework
 
-# packages to generate documention
-pip3 install -q docutils pugments
+# packages to generate documentation
+pip3 install -q docutils pygments
 
 # run tests
 cd tst
 python3 -m robot *.robot
 
-# generate documention
+# generate documentation
 cd ../src
 python3 -m robot.libdoc -F reST HttpCtrl.Client client.html
 python3 -m robot.libdoc -F reST HttpCtrl.Server server.html

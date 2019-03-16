@@ -38,7 +38,7 @@ Send GET request to obtain origin IP address and check that is not empty:
         ${expected status}=   Convert To Integer   200
         Should Be Equal   ${response status}   ${expected status}
 
-        ${origin}=    Get Json Value   ${response body}   origin
+        ${origin}=    Get Json Value From String   ${response body}   origin
         Should Not Be Empty   ${origin}
 
 
@@ -65,7 +65,7 @@ Send POST request and extract required information from response:
         ${expected status}=   Convert To Integer   200
         Should Be Equal   ${response status}   ${expected status}
 
-        ${message}=    Get Json Value   ${response body}   data
+        ${message}=    Get Json Value From String   ${response body}   data
         Should Be Equal   ${message}   ${body}
 
 
@@ -92,8 +92,8 @@ Send PATCH request using HTTPS protocol:
         ${expected status}=   Convert To Integer   200
         Should Be Equal   ${response status}   ${expected status}
 
-        ${volume}=   Get Json Value   ${response body}   json/volume
+        ${volume}=   Get Json Value From String   ${response body}   json/volume
         Should Be Equal   ${volume}   ${77}
 
-        ${mute}=   Get Json Value   ${response body}   json/mute
+        ${mute}=   Get Json Value From String   ${response body}   json/mute
         Should Be Equal   ${mute}   ${False}
