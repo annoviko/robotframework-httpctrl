@@ -33,7 +33,7 @@ from HttpCtrl.response_storage import ResponseStorage
 
 class HttpHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
-        self.server_version = "HttpCtrlServer/"
+        self.server_version = "HttpCtrl.Server/"
         self.sys_version = ""
 
         self.__incoming_condition = threading.Condition()
