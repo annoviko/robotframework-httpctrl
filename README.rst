@@ -32,9 +32,9 @@ Brief Overview of the Library Content
 
 - **HttpCtrl.Json** - provides API to work Json messages [`link json documentation`_].
 
-.. _link client documentation:https://annoviko.github.io/robotframework-httpctrl/client.html
-.. _link server documentation:https://annoviko.github.io/robotframework-httpctrl/server.html
-.. _link json documentation:https://annoviko.github.io/robotframework-httpctrl/json.html
+.. _link client documentation: https://annoviko.github.io/robotframework-httpctrl/client.html
+.. _link server documentation: https://annoviko.github.io/robotframework-httpctrl/server.html
+.. _link json documentation: https://annoviko.github.io/robotframework-httpctrl/json.html
 
 Examples
 ========
