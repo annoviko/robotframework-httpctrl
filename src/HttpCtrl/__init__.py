@@ -24,6 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import http.client
 import json
 import threading
+import time
 
 from robot.api import logger
 
@@ -541,6 +542,7 @@ class Server:
 
         # In case of start-stop, stop may be finished before server start and ir will be impossible to join thread.
         self.__server.wait_run_state()
+        time.sleep(0.1)
 
 
     def stop_server(self):

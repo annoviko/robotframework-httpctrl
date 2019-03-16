@@ -71,6 +71,7 @@ class HttpServer:
         if self.__server is not None:
             self.__server.shutdown()
             self.__server.server_close()
+            self.__server = None
 
             with self.__cv_run:
                 self.__is_run_state = False
