@@ -46,6 +46,8 @@ class HttpServer:
 
 
     def start(self):
+        TCPServer.allow_reuse_address = True
+
         self.__handler = HttpHandler
         self.__server = TCPServer((self.__host, self.__port), self.__handler)
 
@@ -63,8 +65,8 @@ class HttpServer:
 
     def wait_run_state(self):
         with self.__cv_run:
-            while self.__is_run_state is False:
-                self.__cv_run.wait(0.1)
+            while not self.__is_run_state:
+                self.__cv_run.wait()
 
 
     def stop(self):

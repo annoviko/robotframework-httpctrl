@@ -540,7 +540,7 @@ class Server:
         self.__thread = threading.Thread(target=self.__server.start, args=())
         self.__thread.start()
 
-        # In case of start-stop, stop may be finished before server start and ir will be impossible to join thread.
+        # In case of start-stop, stop may be finished before server start and ir will be impossible to join thread.       
         self.__server.wait_run_state()
 
 
