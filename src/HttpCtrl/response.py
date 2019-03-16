@@ -3,8 +3,8 @@
 HttpCtrl library provides HTTP/HTTPS client and server API to Robot Framework to make REST API testing easy.
 
 Authors: Andrei Novikov
-Date 2018-2019
-Copyright GNU Public License
+Date: 2018-2019
+Copyright: GNU Public License
 
 HttpCtrl is free software: you can redistribute it and/or modify
 it under the terms of the GNU General Public License as published by
