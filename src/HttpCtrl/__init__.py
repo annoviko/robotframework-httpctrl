@@ -434,7 +434,7 @@ class Server:
     .. _HttpCtrl.Json: json.html
 
     Here is an example of receiving POST request. In this example HTTP client sends POST request to HTTP server. HTTP
-    server receives it and check incoming request for correctness.
+    server receives it and checks incoming request for correctness.
 
     .. code:: robotframework
 
