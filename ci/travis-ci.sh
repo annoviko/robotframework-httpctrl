@@ -1,8 +1,8 @@
 # package to test
-pip3 install -q robotframework
+sudo pip3 install -q robotframework
 
 # packages to generate documentation
-pip3 install -q docutils pygments
+sudo pip3 install -q docutils pygments
 
 # run tests
 cd tst
