@@ -12,12 +12,29 @@ REST API testing easy.
 
 **License**: GNU General Public License
 
+**Documentation**: https://annoviko.github.io/robotframework-httpctrl/
+
 
 Dependencies
 ============
 
 **Python version**: >=3.4
 
+
+Brief Overview of the Library Content
+=====================================
+
+**HttpCtrl** contains following general libraries:
+
+- **HttpCtrl.Client** - provides API to work with HTTP/HTTPS client [`link client documentation`_].
+
+- **HttpCtrl.Server** - provides API to work with HTTP server [`link server documentation`_].
+
+- **HttpCtrl.Json** - provides API to work Json messages [`link json documentation`_].
+
+.. _link client documentation:https://annoviko.github.io/robotframework-httpctrl/client.html
+.. _link server documentation:https://annoviko.github.io/robotframework-httpctrl/server.html
+.. _link json documentation:https://annoviko.github.io/robotframework-httpctrl/json.html
 
 Examples
 ========
