@@ -36,12 +36,13 @@ Brief Overview of the Library Content
 .. _link server documentation: https://annoviko.github.io/robotframework-httpctrl/server.html
 .. _link json documentation: https://annoviko.github.io/robotframework-httpctrl/json.html
 
+
 Examples
 ========
 
 Send GET request to obtain origin IP address and check that is not empty:
 
-.. code:: robot-framework
+.. code:: robotframework
 
     *** Settings ***
 
@@ -66,7 +67,7 @@ Send GET request to obtain origin IP address and check that is not empty:
 
 Send POST request and extract required information from response:
 
-.. code:: robot-framework
+.. code:: robotframework
 
     *** Settings ***
 
@@ -93,7 +94,7 @@ Send POST request and extract required information from response:
 
 Send PATCH request using HTTPS protocol:
 
-.. code:: robot-framework
+.. code:: robotframework
 
     *** Settings ***
 
