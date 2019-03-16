@@ -1,0 +1,25 @@
+dist: trusty
+language: python
+
+
+os:
+- linux
+
+
+addons:
+  apt:
+    sources:
+    - ubuntu-toolchain-r-test
+    packages:
+    - python3
+
+
+stages:
+- test
+
+
+jobs:
+  include:
+    - stage: test
+      env: TITLE="Test and build documentation."
+      script: ./ci/travis-ci.sh

@@ -1,25 +1,23 @@
-"""!
+"""
 
-@brief HTTP(S) client and server API that is provided to Robot Framework.
+HttpCtrl library provides HTTP/HTTPS client and server API to Robot Framework to make REST API testing easy.
 
-@authors Andrei Novikov (pyclustering@yandex.ru)
-@date 2018-2019
-@copyright GNU Public License
+Authors: Andrei Novikov
+Date 2018-2019
+Copyright GNU Public License
 
-@cond GNU_PUBLIC_LICENSE
-    PyClustering is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+HttpCtrl is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-    PyClustering is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+HttpCtrl is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-@endcond
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
 
@@ -39,6 +37,15 @@ class Client:
     """
 
     HTTP/HTTPS Client Library that provides comprehensive interface to Robot Framework to control HTTP/HTTPS client.
+
+    See other HttpCtrl libraries:
+
+    - HttpCtrl.Server_ - HTTP Server API for testing where easy-controlled HTTP server is required.
+
+    - HttpCtrl.Json_ - Json related API for testing where work with Json message is required.
+
+    .. _HttpCtrl.Server: server.html
+    .. _HttpCtrl.Json: json.html
 
     Example how to send GET request to obtain origin IP address and check that response is not empty:
 
@@ -416,6 +423,15 @@ class Server:
 
     HTTP Server Library that provides comprehensive interface to Robot Framework to control HTTP server.
 
+    See other HttpCtrl libraries:
+
+    - HttpCtrl.Client_ - HTTP/HTTP Client API for testing where easy-controlled HTTP/HTTPS client is required.
+
+    - HttpCtrl.Json_ - Json related API for testing where work with Json message is required.
+
+    .. _HttpCtrl.Client: client.html
+    .. _HttpCtrl.Json: json.html
+
     Here is an example of receiving POST request. In this example HTTP client sends POST request to HTTP server. HTTP
     server receives it and check incoming request for correctness.
 
@@ -741,6 +757,15 @@ class Json:
 
     Json Library provide comprehensive interface to Robot Framework to work with JSON structures that are actively
     used for Internet communication nowadays.
+
+    See other HttpCtrl libraries:
+
+    - HttpCtrl.Client_ - HTTP/HTTP Client API for testing where easy-controlled HTTP/HTTPS client is required.
+
+    - HttpCtrl.Server_ - HTTP Server API for testing where easy-controlled HTTP server is required.
+
+    .. _HttpCtrl.Client: client.html
+    .. _HttpCtrl.Server: server.html
 
     Example where Json values are updated in a string and then read from it:
 

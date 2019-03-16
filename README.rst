@@ -1,9 +1,12 @@
 HttpCtrl library for Robot Framework
 ====================================
 
-**HttpCtrl** is a library for Robot Framework that provides HTTP/HTTPS client and server services.
+**HttpCtrl** is a library for Robot Framework that provides HTTP/HTTPS client and HTTP server services to make
+REST API testing easy.
 
-**Version**: 0.0
+**Version**: 0.1.0
+
+**Author**: Andrei Novikov
 
 **License**: GNU General Public License
 
@@ -11,7 +14,7 @@ HttpCtrl library for Robot Framework
 Dependencies
 ============
 
-**Python version**: >=3.4 (32, 64-bit)
+**Python version**: >=3.4
 
 
 Examples

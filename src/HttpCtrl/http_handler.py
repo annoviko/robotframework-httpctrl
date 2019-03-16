@@ -1,25 +1,23 @@
-"""!
+"""
 
-@brief HTTP server request handler.
+HttpCtrl library provides HTTP/HTTPS client and server API to Robot Framework to make REST API testing easy.
 
-@authors Andrei Novikov (pyclustering@yandex.ru)
-@date 2018-2019
-@copyright GNU Public License
+Authors: Andrei Novikov
+Date 2018-2019
+Copyright GNU Public License
 
-@cond GNU_PUBLIC_LICENSE
-    PyClustering is free software: you can redistribute it and/or modify
-    it under the terms of the GNU General Public License as published by
-    the Free Software Foundation, either version 3 of the License, or
-    (at your option) any later version.
+HttpCtrl is free software: you can redistribute it and/or modify
+it under the terms of the GNU General Public License as published by
+the Free Software Foundation, either version 3 of the License, or
+(at your option) any later version.
 
-    PyClustering is distributed in the hope that it will be useful,
-    but WITHOUT ANY WARRANTY; without even the implied warranty of
-    MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
-    GNU General Public License for more details.
+HttpCtrl is distributed in the hope that it will be useful,
+but WITHOUT ANY WARRANTY; without even the implied warranty of
+MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.  See the
+GNU General Public License for more details.
 
-    You should have received a copy of the GNU General Public License
-    along with this program.  If not, see <http://www.gnu.org/licenses/>.
-@endcond
+You should have received a copy of the GNU General Public License
+along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
 
@@ -43,53 +41,34 @@ class HttpHandler(SimpleHTTPRequestHandler):
 
 
     def do_GET(self):
-        host, port = self.client_address[:2]
-
-        logger.info("'GET' request is received from '%s:%s'." % (host, port))
-
-        request = Request(host, port, 'GET', self.path, self.headers)
-        RequestStorage.push(request)
-
-        response = ResponseStorage.pop()
-        self.__send_response(response)
+        self.__default_handler('GET')
 
 
     def do_POST(self):
-        host, port = self.client_address[:2]
-
-        logger.info("'POST' request is received from '%s:%s'." % (host, port))
-
         body = self.rfile.read(int(self.headers['Content-Length'])).decode('utf-8')
-        request = Request(host, port, 'POST', self.path, self.headers, body)
-        RequestStorage.push(request)
+        self.__default_handler('POST', body)
 
-        response = ResponseStorage.pop()
-        self.__send_response(response)
+
+    def do_PUT(self):
+        body = self.rfile.read(int(self.headers['Content-Length'])).decode('utf-8')
+        self.__default_handler('PUT', body)
+
+
+    def do_OPTIONS(self):
+        self.__default_handler('OPTIONS')
+
+
+    def do_HEAD(self):
+        self.__default_handler('HEAD')
 
 
     def do_PATCH(self):
-        host, port = self.client_address[:2]
-
-        logger.info("'PATCH' request is received from '%s:%s'." % (host, port))
-
         body = self.rfile.read(int(self.headers['Content-Length'])).decode('utf-8')
-        request = Request(host, port, 'PATCH', self.path, self.headers, body)
-        RequestStorage.push(request)
-
-        response = ResponseStorage.pop()
-        self.__send_response(response)
+        self.__default_handler('PATCH', body)
 
 
     def do_DELETE(self):
-        host, port = self.client_address[:2]
-
-        logger.info("'DELETE' request is received from '%s:%s'." % (host, port))
-
-        request = Request(host, port, 'DELETE', self.path, self.headers)
-        RequestStorage.push(request)
-
-        response = ResponseStorage.pop()
-        self.__send_response(response)
+        self.__default_handler('DELETE')
 
 
     def log_message(self, format, *args):
@@ -102,6 +81,18 @@ class HttpHandler(SimpleHTTPRequestHandler):
 
     def log_request(self, code='-', size='-'):
         return
+
+
+    def __default_handler(self, method, body=None):
+        host, port = self.client_address[:2]
+
+        logger.info("'%s' request is received from '%s:%s'." % (method, host, port))
+
+        request = Request(host, port, method, self.path, self.headers, body)
+        RequestStorage.push(request)
+
+        response = ResponseStorage.pop()
+        self.__send_response(response)
 
 
     def __send_response(self, response):
