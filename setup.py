@@ -41,6 +41,7 @@ setup(
     packages=find_packages(),
     version='0.1.0',
     description='robotframework-httpctrl is a library for Robot Framework that provides HTTP/HTTPS client and HTTP server services',
+    platforms='any',
     long_description=load_readme(),
     url='https://github.com/annoviko/robotframework-httpctrl',
     project_urls={
@@ -63,11 +64,12 @@ setup(
         'Topic :: Software Development :: Testing',
         'Framework :: Robot Framework :: Library'
     ],
-    keywords='httpctrl http https robotframework client server json testing',
+    keywords='httpctrl http https robotframework client server json test testing',
     author='Andrei Novikov',
     author_email='spb.andr@yandex.ru',
 
     python_requires='>=3.4',
 
+    package_dir={'': 'src'},
     data_files=[('', ['LICENSE', 'README.rst', 'PKG-INFO.rst'])],
 )
