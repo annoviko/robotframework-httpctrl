@@ -38,7 +38,7 @@ def load_readme():
 
 setup(
     name='robotframework-httpctrl',
-    packages=find_packages(),
+    packages=['HttpCtrl'],
     version='0.1.0',
     description='robotframework-httpctrl is a library for Robot Framework that provides HTTP/HTTPS client and HTTP server services',
     platforms='any',
@@ -69,6 +69,7 @@ setup(
     author_email='spb.andr@yandex.ru',
 
     python_requires='>=3.4',
+    install_requires=['robotframework'],
 
     package_dir={'': 'src'},
     data_files=[('', ['LICENSE', 'README.rst', 'PKG-INFO.rst'])],
