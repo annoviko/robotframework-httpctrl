@@ -71,6 +71,6 @@ setup(
     python_requires='>=3.4',
     install_requires=['robotframework'],
 
-    package_dir={'': 'src'},
-    data_files=[('', ['LICENSE', 'README.rst', 'PKG-INFO.rst'])],
+    package_dir={'': 'src'}
 )
+
