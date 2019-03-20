@@ -92,7 +92,11 @@ class HttpHandler(SimpleHTTPRequestHandler):
         RequestStorage.push(request)
 
         response = ResponseStorage.pop()
-        self.__send_response(response)
+
+        try:
+            self.__send_response(response)
+        except Exception as exception:
+            logger.info("Response was not sent to client due to reason: '%s'." % str(exception))
 
 
     def __send_response(self, response):

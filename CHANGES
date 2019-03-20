@@ -1,0 +1,3 @@
+CHANGE NOTES FOR 0.1.1
+
+- Bug correction for HttpCtrl.Server when client close connection after sending request.
