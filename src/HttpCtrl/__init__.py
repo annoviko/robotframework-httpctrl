@@ -24,7 +24,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import http.client
 import json
 import threading
-import time
 
 from robot.api import logger
 
@@ -570,6 +569,9 @@ class Server:
             self.__response_headers = {}
             self.__request = None
 
+            ResponseStorage.clear()
+            RequestStorage.clear()
+
             self.__server = None
             self.__thread = None
 
@@ -600,6 +602,45 @@ class Server:
             raise AssertionError("Timeout: request was not received.")
 
         logger.info("Request is received: %s" % self.__request)
+
+
+    def wait_for_no_request(self, timeout=5.0):
+        """
+
+        Command to server to wait for no incoming request during specific time. This call is blocked until HTTP request
+        arrives or timeout. Basically server receives all requests after \`Start Server\` and places them to internal
+        queue. When test call function \`Wait For No Request\` it checks the queue and if it is not empty returns throws
+        exception. Otherwise it waits for request during 'timeout' seconds. If during this time request is received then
+        exception is thrown.
+
+        `timeout` [in] (float): Period of time in seconds when requests should not be received by HTTP server.
+
+        Example how to wait for lack of requests.
+
+        +---------------------+
+        | Wait For No Request |
+        +---------------------+
+
+        .. code:: text
+
+            Wait For No Request
+
+        Example how to wait for lack of requests during 10 seconds.
+
+        +---------------------+----+
+        | Wait For No Request | 10 |
+        +---------------------+----+
+
+        .. code:: text
+
+            Wait For No Request   10
+
+        """
+        self.__request = RequestStorage.pop()
+        if self.__request is not None:
+            raise AssertionError("Request was received: %s." % self.__request)
+
+        logger.info("Request is not received.")
 
 
     def get_request_method(self):

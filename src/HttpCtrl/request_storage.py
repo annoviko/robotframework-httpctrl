@@ -56,3 +56,8 @@ class RequestStorage:
             RequestStorage.__request = None
 
         return request
+
+    @staticmethod
+    def clear():
+        with RequestStorage.__request_condition:
+            RequestStorage.__request = None

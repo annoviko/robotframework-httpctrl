@@ -56,3 +56,8 @@ class ResponseStorage:
             ResponseStorage.__response = None
 
         return response
+
+    @staticmethod
+    def clear():
+        with ResponseStorage.__response_condition:
+            ResponseStorage.__response = None
