@@ -1,6 +1,6 @@
 # package to test
 echo "Install Robot Framework."
-sudo pip3 install -q robotframework
+sudo pip3 install -q robotframework-python3
 
 # packages to generate documentation
 echo "Install packages to generate documentation."
