@@ -1,10 +1,10 @@
 # package to test
 echo "Install Robot Framework."
-sudo python3 -m pip install -q robotframework-python3
+python3 -m pip install -q robotframework-python3
 
 # packages to generate documentation
 echo "Install packages to generate documentation."
-sudo python3 -m pip install -q docutils pygments
+python3 -m pip install -q docutils pygments
 
 python3 --version
 
@@ -19,7 +19,7 @@ echo "Path '$PYTHONPATH' is exported."
 # run tests
 echo "Run tests for HttpCtrl."
 cd ../tst
-python3 -m robot.run *.robot
+python3 -m robot *.robot
 
 # generate documentation
 echo "Generate documentation for HttpCtrl."
