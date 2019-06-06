@@ -25,5 +25,5 @@ Empty Queue after Server Stop
     Stop Server
 
     Start Server        127.0.0.1   8000
-    Wait For No Requests   2
+    Wait For No Request   2
     Stop Server
