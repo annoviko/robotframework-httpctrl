@@ -6,6 +6,8 @@ sudo python3 -m pip install -q robotframework-python3
 echo "Install packages to generate documentation."
 sudo python3 -m pip install -q docutils pygments
 
+python3 --version
+
 # export path to the library
 echo "Export path to the HttpCtrl library."
 cd src
@@ -17,7 +19,7 @@ echo "Path '$PYTHONPATH' is exported."
 # run tests
 echo "Run tests for HttpCtrl."
 cd ../tst
-python3 -m robot *.robot
+python3 -m robot.run *.robot
 
 # generate documentation
 echo "Generate documentation for HttpCtrl."
