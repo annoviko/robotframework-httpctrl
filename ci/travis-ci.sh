@@ -1,10 +1,10 @@
 # package to test
 echo "Install Robot Framework."
-sudo pip install -q robotframework-python3
+sudo python3 -m pip3 install -q robotframework-python3
 
 # packages to generate documentation
 echo "Install packages to generate documentation."
-sudo pip install -q docutils pygments
+sudo python3 -m pip3 install -q docutils pygments
 
 # export path to the library
 echo "Export path to the HttpCtrl library."
