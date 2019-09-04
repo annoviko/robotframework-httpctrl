@@ -22,6 +22,6 @@ python3 -m robot.run *.robot
 # generate documentation
 echo "Generate documentation for HttpCtrl."
 cd ../src
-python3 -m robot.libdoc -v 0.1.0 -F reST HttpCtrl.Client client.html
-python3 -m robot.libdoc -v 0.1.0 -F reST HttpCtrl.Server server.html
-python3 -m robot.libdoc -v 0.1.0 -F reST HttpCtrl.Json json.html
+python3 -m robot.libdoc -v 0.1.1 -F reST HttpCtrl.Client client.html
+python3 -m robot.libdoc -v 0.1.1 -F reST HttpCtrl.Server server.html
+python3 -m robot.libdoc -v 0.1.1 -F reST HttpCtrl.Json json.html
