@@ -1,4 +1,4 @@
-|Build Status Linux|
+|Build Status Linux| |PyPi|
 
 HttpCtrl library for Robot Framework
 ====================================
@@ -174,3 +174,5 @@ request for correctness.
 
 .. |Build Status Linux| image:: https://travis-ci.org/annoviko/robotframework-httpctrl.svg?branch=master
    :target: https://travis-ci.org/annoviko/robotframework-httpctrl
+.. |PyPi| image:: https://badge.fury.io/py/robotframework-httpctrl.svg
+   :target: https://badge.fury.io/py/robotframework-httpctrl
