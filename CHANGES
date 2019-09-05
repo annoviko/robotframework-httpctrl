@@ -1,3 +1,22 @@
-CHANGE NOTES FOR 0.1.1
+------------------------------------------------------------------------
+
+CHANGE NOTES FOR 0.1.2 (RELEASED: Sep 10, 2019)
+
+------------------------------------------------------------------------
+
+GENERAL CHANGES:
+
+- Built-in documentation is updated.
+  See: no reference
+
+
+------------------------------------------------------------------------
+
+CHANGE NOTES FOR 0.1.1 (RELEASED: Sep 9, 2019)
+
+------------------------------------------------------------------------
+
+GENERAL CHANGES:
 
 - Bug correction for HttpCtrl.Server when client close connection after sending request.
+  See: no reference

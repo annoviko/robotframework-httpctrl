@@ -39,14 +39,14 @@ def load_readme():
 setup(
     name='robotframework-httpctrl',
     packages=['HttpCtrl'],
-    version='0.1.1',
+    version='0.1.2',
     description='robotframework-httpctrl is a library for Robot Framework that provides HTTP/HTTPS client and HTTP server services',
     platforms='any',
     long_description=load_readme(),
     url='https://github.com/annoviko/robotframework-httpctrl',
     project_urls={
-        'Homepage': 'https://pyclustering.github.io/',
-        'Repository': 'https://pyclustering.github.io/',
+        'Homepage': 'https://annoviko.github.io/robotframework-httpctrl/',
+        'Repository': 'https://github.com/annoviko/robotframework-httpctrl',
         'Documentation': 'https://annoviko.github.io/robotframework-httpctrl/',
         'Bug Tracker': 'https://github.com/annoviko/robotframework-httpctrl/issues'
     },
