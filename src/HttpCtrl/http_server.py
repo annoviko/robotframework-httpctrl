@@ -26,6 +26,8 @@ import threading
 from socketserver import TCPServer
 
 from HttpCtrl.http_handler import HttpHandler
+from HttpCtrl.internal_messages import TerminationRequest
+from HttpCtrl.response_storage import ResponseStorage
 
 
 class HttpServer:
@@ -71,6 +73,8 @@ class HttpServer:
 
     def stop(self):
         if self.__server is not None:
+            ResponseStorage().push(TerminationRequest())
+
             self.__server.shutdown()
             self.__server.server_close()
             self.__server = None

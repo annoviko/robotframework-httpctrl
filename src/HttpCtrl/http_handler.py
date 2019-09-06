@@ -21,11 +21,10 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
 
-import threading
-
 from http.server import SimpleHTTPRequestHandler
 from robot.api import logger
 
+from HttpCtrl.internal_messages import TerminationRequest
 from HttpCtrl.request import Request
 from HttpCtrl.request_storage import RequestStorage
 from HttpCtrl.response_storage import ResponseStorage
@@ -36,7 +35,6 @@ class HttpHandler(SimpleHTTPRequestHandler):
         self.server_version = "HttpCtrl.Server/"
         self.sys_version = ""
 
-        self.__incoming_condition = threading.Condition()
         SimpleHTTPRequestHandler.__init__(self, *args, **kwargs)
 
 
@@ -92,6 +90,8 @@ class HttpHandler(SimpleHTTPRequestHandler):
         RequestStorage().push(request)
 
         response = ResponseStorage().pop()
+        if isinstance(response, TerminationRequest):
+            return
 
         try:
             self.__send_response(response)

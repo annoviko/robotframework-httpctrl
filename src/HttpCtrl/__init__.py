@@ -21,6 +21,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
 
+import datetime
 import http.client
 import json
 import threading
@@ -113,6 +114,9 @@ class Client:
         self.__response_body = None
         self.__response_headers = None
 
+        self.__event_queue = threading.Condition()
+        self.__async_queue = {}
+
 
     def initialize_client(self, host, port=None):
         """
@@ -190,6 +194,24 @@ class Client:
             connection.close()
 
 
+    def __wait_response_async(self, connection):
+        try:
+            server_response = connection.getresponse()
+
+            with self.__event_queue:
+                response = Response(server_response.status, server_response.read().decode('utf-8'),
+                                    server_response.headers)
+
+                self.__async_queue[connection] = response
+                self.__event_queue.notify_all()
+
+        except Exception as exception:
+            logger.info("Server has not provided response to the request (reason: %s)." % str(exception))
+
+        finally:
+            connection.close()
+
+
     def __send_request(self, connection_type, method, url, body):
         connection = self.__send(connection_type, method, url, body)
         self.__wait_response(connection)
@@ -198,9 +220,11 @@ class Client:
     def __sent_request_async(self, connection_type, method, url, body):
         connection = self.__send(connection_type, method, url, body)
 
-        wait_thread = threading.Thread(target=self.__wait_response, args=(connection,))
+        wait_thread = threading.Thread(target=self.__wait_response_async, args=(connection,))
         wait_thread.daemon = True
         wait_thread.start()
+
+        return connection
 
 
     def send_http_request(self, method, url, body=None):
@@ -244,7 +268,8 @@ class Client:
         """
 
         Send HTTP request with specified parameters asynchronously. Non-blocking function to send request that waits
-        for reply using separate thread.
+        for reply using separate thread. Return connection object that is used as a key to get asynchronous response
+        using function 'Get Async Response'.
 
         `method` [in] (string): Method that is used to send request (GET, POST, PUT, DELETE, etc., see: RFC 7231, RFC 5789).
 
@@ -254,16 +279,16 @@ class Client:
 
         Example where PUT request is sent with specific body:
 
-        +-------------------------+-----+------+---------------+
-        | Send HTTP Request Async | PUT | /put | Hello Server! |
-        +-------------------------+-----+------+---------------+
+        +----------------+-------------------------+-----+------+---------------+
+        | ${connection}= | Send HTTP Request Async | PUT | /put | Hello Server! |
+        +----------------+-------------------------+-----+------+---------------+
 
         .. code:: text
 
-            Send HTTP Request Async   PUT   /put   Hello Server!
+            ${connection}=   Send HTTP Request Async   PUT   /put   Hello Server!
 
         """
-        self.__sent_request_async('http', method, url, body)
+        return self.__sent_request_async('http', method, url, body)
 
 
     def send_https_request(self, method, url, body=None):
@@ -296,7 +321,8 @@ class Client:
         """
 
         Send HTTPS request with specified parameters asynchronously. Non-blocking function to send request that waits
-        for reply using separate thread.
+        for reply using separate thread. Return connection object that is used as a key to get asynchronous response
+        using function 'Get Async Response'.
 
         `method` [in] (string): Method that is used to send request (GET, POST, DELETE, etc., see: RFC 7231, RFC 5789).
 
@@ -306,16 +332,16 @@ class Client:
 
         Example where DELETE request is sent with specific body:
 
-        +--------------------------+--------+---------+
-        | Send HTTPS Request Async | DELETE | /delete |
-        +--------------------------+--------+---------+
+        +----------------+--------------------------+--------+---------+
+        | ${connection}= | Send HTTPS Request Async | DELETE | /delete |
+        +----------------+--------------------------+--------+---------+
 
         .. code:: text
 
-            Send HTTPS Request Async   DELETE   /delete
+            ${connection}=   Send HTTPS Request Async   DELETE   /delete
 
         """
-        self.__sent_request_async('http', method, url, body)
+        return self.__sent_request_async('http', method, url, body)
 
 
     def set_request_header(self, key, value):
@@ -415,6 +441,135 @@ class Client:
             body = self.__response_body
             self.__response_body = None
             return body
+
+
+    def get_async_response(self, connection, timeout=0):
+        """
+
+        Return response as an object for the specified connection. This method should be called once after
+        'Send HTTP Request Async' or 'Send HTTPS Request Async'. It returns None if there is no response for the
+        specified connection.
+
+        `connection` [in] (object): Connection for that response should be obtained.
+
+        `timeout` [in] (int): Period of time in seconds to obtain response (by default is 0).
+
+        Example how to get response object:
+
+        +--------------+--------------------+
+        | ${response}= | Get Async Response |
+        +--------------+--------------------+
+
+        Example how to try to get response object during 10 seconds:
+
+        +--------------+--------------------+----+
+        | ${response}= | Get Async Response | 10 |
+        +--------------+--------------------+----+
+
+        .. code:: text
+
+            ${connection}=   Send HTTP Async Request   POST            /post   Hello Server!
+            ${response}=     Get Async Response        ${connection}   5
+
+        """
+        with self.__event_queue:
+            start_time = datetime.datetime.now()
+            end_time = start_time
+
+            while (end_time - start_time).total_seconds() < int(timeout):
+                if connection in self.__async_queue:
+                    return self.__async_queue.pop(connection)
+
+                self.__event_queue.wait_for(connection not in self.__async_queue, int(timeout))
+
+            return self.__async_queue.pop(connection, None)
+
+
+    def get_status_from_response(self, response):
+        """
+
+        Return response status as an integer value from the specified response object that was obtained by function
+        'Get Async Response'. Return 'None' if response object is None.
+
+        Example how to get response status from a response object:
+
+        +---------------------+--------------------------+-------------+
+        | ${response status}= | Get Status From Response | ${response} |
+        +---------------------+--------------------------+-------------+
+
+        .. code:: text
+
+            ${connection}=      Send HTTP Async Request   GET             /get
+
+            # Some other actions ...
+
+            ${response}=          Get Async Response         ${connection}   5
+            ${response status}=   Get Status From Response   ${response}
+
+        """
+        if response is None:
+            logger.error("Impossible to get status from 'None' response object.")
+            return None
+
+        return response.get_status()
+
+
+    def get_headers_from_response(self, response):
+        """
+
+        Return response headers as a map from the specified response object that was obtained by function
+        'Get Async Response'. Return 'None' if response object is None.
+
+        Example how to get response headers from a response object:
+
+        +----------------------+---------------------------+-------------+
+        | ${response headers}= | Get Headers From Response | ${response} |
+        +----------------------+---------------------------+-------------+
+
+        .. code:: text
+
+            ${connection}=      Send HTTP Async Request   GET             /get
+
+            # Some other actions ...
+
+            ${response}=           Get Async Response          ${connection}   5
+            ${response headers}=   Get Headers From Response   ${response}
+
+        """
+        if response is None:
+            logger.error("Impossible to get headers from 'None' response object.")
+            return None
+
+        return response.get_headers()
+
+
+    def get_body_from_response(self, response):
+        """
+
+        Return response body as a string from the specified response object that was obtained by function
+        'Get Async Response'. Return 'None' if response object is None.
+
+        Example how to get response code from a response object:
+
+        +-------------------+------------------------+-------------+
+        | ${response body}= | Get Body From Response | ${response} |
+        +-------------------+------------------------+-------------+
+
+        .. code:: text
+
+            ${connection}=      Send HTTP Async Request   GET             /get
+
+            # Some other actions ...
+
+            ${response}=        Get Async Response        ${connection}   5
+            ${response body}=   Get Body From Response    ${response}
+
+        """
+        if response is None:
+            logger.error("Impossible to get body from 'None' response object.")
+            return None
+
+        return response.get_body()
 
 
 
@@ -613,7 +768,7 @@ class Server:
         exception. Otherwise it waits for request during 'timeout' seconds. If during this time request is received then
         exception is thrown.
 
-        `timeout` [in] (float): Period of time in seconds when requests should not be received by HTTP server.
+        `timeout` [in] (int): Period of time in seconds when requests should not be received by HTTP server.
 
         Example how to wait for lack of requests.
 
