@@ -569,8 +569,8 @@ class Server:
             self.__response_headers = {}
             self.__request = None
 
-            ResponseStorage.clear()
-            RequestStorage.clear()
+            ResponseStorage().clear()
+            RequestStorage().clear()
 
             self.__server = None
             self.__thread = None
@@ -597,7 +597,7 @@ class Server:
             Wait For Request
 
         """
-        self.__request = RequestStorage.pop()
+        self.__request = RequestStorage().pop()
         if self.__request is None:
             raise AssertionError("Timeout: request was not received.")
 
@@ -636,7 +636,7 @@ class Server:
             Wait For No Request   10
 
         """
-        self.__request = RequestStorage.pop()
+        self.__request = RequestStorage().pop()
         if self.__request is not None:
             raise AssertionError("Request was received: %s." % self.__request)
 
@@ -790,7 +790,7 @@ class Server:
 
         """
         response = Response(int(status), body, self.__response_headers)
-        ResponseStorage.push(response)
+        ResponseStorage().push(response)
 
 
 

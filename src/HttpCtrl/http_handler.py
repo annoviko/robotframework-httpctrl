@@ -89,9 +89,9 @@ class HttpHandler(SimpleHTTPRequestHandler):
         logger.info("'%s' request is received from '%s:%s'." % (method, host, port))
 
         request = Request(host, port, method, self.path, self.headers, body)
-        RequestStorage.push(request)
+        RequestStorage().push(request)
 
-        response = ResponseStorage.pop()
+        response = ResponseStorage().pop()
 
         try:
             self.__send_response(response)

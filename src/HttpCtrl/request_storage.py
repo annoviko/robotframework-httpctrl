@@ -23,41 +23,40 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import threading
 
-from copy import copy
 from robot.api import logger
 
+from HttpCtrl.utils.singleton import Singleton
 
-class RequestStorage:
-    __request = None
-    __request_condition = threading.Condition()
 
-    @staticmethod
-    def __ready():
-        return RequestStorage.__request is not None
+class RequestStorage(metaclass=Singleton):
+    def __init__(self):
+        self.__request = None
+        self.__event_incoming = threading.Condition()
 
-    @staticmethod
-    def push(request):
-        with RequestStorage.__request_condition:
+
+    def __ready(self):
+        return self.__request is not None
+
+
+    def push(self, request):
+        with self.__event_incoming:
             logger.info("Push request to the Request Storage: %s" % request)
-            RequestStorage.__request = request
-            RequestStorage.__request_condition.notify()
+            self.__request = request
+            self.__event_incoming.notify()
 
-    @staticmethod
-    def pop(timeout=5.0):
-        with RequestStorage.__request_condition:
-            if RequestStorage.__request is None:
-                result = RequestStorage.__request_condition.wait_for(RequestStorage.__ready, timeout)
-                if result is True:
-                    logger.info("Pop request from the Request Storage: %s" % RequestStorage.__request)
-                else:
-                    logger.info("Timeout - no request is obtained from Request Storage.")
 
-            request = copy(RequestStorage.__request)
-            RequestStorage.__request = None
+    def pop(self, timeout=5.0):
+        with self.__event_incoming:
+            if not self.__ready():
+                result = self.__event_incoming.wait_for(self.__ready, timeout)
+                if result is False:
+                    return None
 
-        return request
+            request = self.__request
+            self.__request = None
+            return request
 
-    @staticmethod
-    def clear():
-        with RequestStorage.__request_condition:
-            RequestStorage.__request = None
+
+    def clear(self):
+        with self.__event_incoming:
+            self.__request = None

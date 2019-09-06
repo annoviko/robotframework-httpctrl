@@ -23,41 +23,40 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 import threading
 
-from copy import copy
 from robot.api import logger
 
+from HttpCtrl.utils.singleton import Singleton
 
-class ResponseStorage:
-    __response = None
-    __response_condition = threading.Condition()
 
-    @staticmethod
-    def __ready():
-        return ResponseStorage.__response is not None
+class ResponseStorage(metaclass=Singleton):
+    def __init__(self):
+        self.__response = None
+        self.__event_incoming = threading.Condition()
 
-    @staticmethod
-    def push(response):
-        with ResponseStorage.__response_condition:
+
+    def __ready(self):
+        return self.__response is not None
+
+
+    def push(self, response):
+        with self.__event_incoming:
             logger.info("Push response to the Response Storage: %s" % response)
-            ResponseStorage.__response = response
-            ResponseStorage.__response_condition.notify()
+            self.__response = response
+            self.__event_incoming.notify()
 
-    @staticmethod
-    def pop(timeout=5.0):
-        with ResponseStorage.__response_condition:
-            if ResponseStorage.__response is None:
-                result = ResponseStorage.__response_condition.wait_for(ResponseStorage.__ready, timeout)
-                if result is True:
-                    logger.info("Pop response from the Response Storage: %s" % ResponseStorage.__response)
-                else:
-                    logger.info("Timeout - no response is obtained from Response Storage.")
 
-            response = copy(ResponseStorage.__response)
-            ResponseStorage.__response = None
+    def pop(self, timeout=5.0):
+        with self.__event_incoming:
+            if not self.__ready():
+                result = self.__event_incoming.wait_for(self.__ready, timeout)
+                if result is False:
+                    return None
 
-        return response
+            response = self.__response
+            self.__response = None
+            return response
 
-    @staticmethod
-    def clear():
-        with ResponseStorage.__response_condition:
-            ResponseStorage.__response = None
+
+    def clear(self):
+        with self.__event_incoming:
+            self.__response = None

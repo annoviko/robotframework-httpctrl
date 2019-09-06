@@ -7,6 +7,7 @@ Library         HttpCtrl.Server
 *** Test Cases ***
 
 Send Request Without Reply
+    [Teardown]  Stop Server
     Initialize Client   127.0.0.1   8000
     Start Server        127.0.0.1   8000
 
@@ -22,5 +23,3 @@ Send Request Without Reply
 
     Should Be Equal   ${status}   ${None}
     Should Be Equal   ${body}     ${None}
-
-    Stop Server
