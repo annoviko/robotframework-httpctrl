@@ -1,5 +1,23 @@
 ------------------------------------------------------------------------
 
+CHANGE NOTES FOR 0.1.3 (RELEASED: -)
+
+------------------------------------------------------------------------
+
+GENERAL CHANGES:
+
+- Optimized termination of the HTTP(S) server - problem with up-to 5 seconds delay (HttpCtrl.Server).
+  See: https://github.com/annoviko/robotframework-httpctrl/issues/7
+
+- Functions to work with async. received responses are introduced (HttpCtrl.Client).
+  See: https://github.com/annoviko/robotframework-httpctrl/issues/5
+
+- Functions `Send HTTPS Request Async` and `Send HTTP Request Async` must returns connection (HttpCtrl.Client).
+  See: https://github.com/annoviko/robotframework-httpctrl/issues/5
+
+
+------------------------------------------------------------------------
+
 CHANGE NOTES FOR 0.1.2 (RELEASED: Sep 10, 2019)
 
 ------------------------------------------------------------------------

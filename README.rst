@@ -6,7 +6,7 @@ HttpCtrl library for Robot Framework
 **RobotFramework-HttpCtrl** is a library for Robot Framework that provides HTTP/HTTPS client and HTTP server services
 to make REST API testing easy.
 
-**Version**: 0.1.2
+**Version**: 0.1.x
 
 **Author**: Andrei Novikov
 
