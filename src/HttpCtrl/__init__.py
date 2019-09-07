@@ -800,6 +800,25 @@ class Server:
 
 
     def wait_and_ignore_request(self):
+        """
+
+        Command to server to wait incoming request and ignore it by closing connection. This call is blocked until HTTP
+        request arrives. Basically server receives all requests after \`Start Server\` and places them to internal
+        queue. When test call function \`Wait And Ignore Request\` it checks the queue and if it is not empty returns
+        the first request in the queue is ignore and connection is closed. If the queue is empty then function waits
+        when the server receives request and place it to the queue.
+
+        Example how to wait and ignore request.
+
+        +-------------------------+
+        | Wait And Ignore Request |
+        +-------------------------+
+
+        .. code:: text
+
+            Wait And Ignore Request
+
+        """
         self.wait_for_request()
         ResponseStorage().push(IgnoreRequest())
         logger.info("Request is ignored by closing connection.")
