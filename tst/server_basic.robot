@@ -30,7 +30,7 @@ Empty Queue after Server Stop
     Wait For No Request   2
     ${end time}=     Get Current Date
     ${duration}=     Subtract Date From Date   ${end time}   ${start time}
-    Should Be Equal As Numbers   2   ${duration}   precision=1
+    Should Be Equal As Numbers   ${2}   ${duration}   precision=1
 
     Stop Server
 

@@ -24,7 +24,7 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 from http.server import SimpleHTTPRequestHandler
 from robot.api import logger
 
-from HttpCtrl.internal_messages import TerminationRequest
+from HttpCtrl.internal_messages import TerminationRequest, IgnoreRequest
 from HttpCtrl.request import Request
 from HttpCtrl.request_storage import RequestStorage
 from HttpCtrl.response_storage import ResponseStorage
@@ -90,7 +90,7 @@ class HttpHandler(SimpleHTTPRequestHandler):
         RequestStorage().push(request)
 
         response = ResponseStorage().pop()
-        if isinstance(response, TerminationRequest):
+        if isinstance(response, TerminationRequest) or isinstance(response, IgnoreRequest):
             return
 
         try:

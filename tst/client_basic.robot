@@ -91,8 +91,7 @@ Receive Only One Async Response
     ${connection 1}=   Send HTTP Request Async   POST   /post   Post Message
     ${connection 2}=   Send HTTP Request Async   PUT    /put    Put Message
 
-    Wait For Request
-    # Wait And Ignore Request
+    Wait And Ignore Request
 
     Wait For Request
     Set Reply Header   Another-Key   Another-Value

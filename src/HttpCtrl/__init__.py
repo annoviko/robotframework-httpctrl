@@ -28,6 +28,7 @@ import threading
 
 from robot.api import logger
 
+from HttpCtrl.internal_messages import IgnoreRequest
 from HttpCtrl.http_server import HttpServer
 from HttpCtrl.request_storage import RequestStorage
 from HttpCtrl.response_storage import ResponseStorage
@@ -796,6 +797,12 @@ class Server:
             raise AssertionError("Request was received: %s." % self.__request)
 
         logger.info("Request is not received.")
+
+
+    def wait_and_ignore_request(self):
+        self.wait_for_request()
+        ResponseStorage().push(IgnoreRequest())
+        logger.info("Request is ignored by closing connection.")
 
 
     def get_request_method(self):
