@@ -74,6 +74,8 @@ Server Receives Two Messages at Once
     Should Be Equal   ${body}     Message to Put
     Reply By          201
 
+    Sleep   200ms
+
     ${response 1}=   Get Async Response   ${connection 1}
     ${response 2}=   Get Async Response   ${connection 2}
 

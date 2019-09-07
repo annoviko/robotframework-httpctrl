@@ -89,6 +89,7 @@ Receive Only One Async Response
     Start Server        127.0.0.1   8000
 
     ${connection 1}=   Send HTTP Request Async   POST   /post   Post Message
+    Sleep   200ms
     ${connection 2}=   Send HTTP Request Async   PUT    /put    Put Message
 
     Wait And Ignore Request
