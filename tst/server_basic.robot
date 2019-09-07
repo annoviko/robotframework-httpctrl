@@ -1,5 +1,6 @@
 *** Settings ***
 
+Library         DateTime
 Library         HttpCtrl.Client
 Library         HttpCtrl.Server
 
@@ -25,7 +26,25 @@ Empty Queue after Server Stop
     Stop Server
 
     Start Server        127.0.0.1   8000
+    ${start time}=   Get Current Date
     Wait For No Request   2
+    ${end time}=     Get Current Date
+    ${duration}=     Subtract Date From Date   ${end time}   ${start time}
+    Should Be Equal As Numbers   2   ${duration}   precision=1
+
+    Stop Server
+
+
+No Requests During 1 Second
+    Initialize Client   127.0.0.1   8000
+    Start Server        127.0.0.1   8000
+
+    ${start time}=   Get Current Date
+    Wait For No Request   1
+    ${end time}=     Get Current Date
+    ${duration}=     Subtract Date From Date   ${end time}   ${start time}
+    Should Be Equal As Numbers   1   ${duration}   precision=1
+
     Stop Server
 
 

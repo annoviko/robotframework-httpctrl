@@ -791,7 +791,7 @@ class Server:
             Wait For No Request   10
 
         """
-        self.__request = RequestStorage().pop()
+        self.__request = RequestStorage().pop(timeout)
         if self.__request is not None:
             raise AssertionError("Request was received: %s." % self.__request)
 
