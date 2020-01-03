@@ -734,7 +734,7 @@ class Server:
             logger.info("HTTP server is stopped.")
 
 
-    def wait_for_request(self):
+    def wait_for_request(self, timeout=5.0):
         """
 
         Command to server to wait incoming request. This call is blocked until HTTP request arrives. Basically server
@@ -751,9 +751,19 @@ class Server:
         .. code:: text
 
             Wait For Request
+            
+        Example how to wait for a request during 10 seconds.
+
+        +---------------------+----+
+        | Wait For Request | 10 |
+        +---------------------+----+
+
+        .. code:: text
+
+            Wait For Request   10
 
         """
-        self.__request = RequestStorage().pop()
+        self.__request = RequestStorage().pop(int(timemout))
         if self.__request is None:
             raise AssertionError("Timeout: request was not received.")
 
