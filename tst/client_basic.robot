@@ -3,8 +3,8 @@
 Library         HttpCtrl.Client
 Library         HttpCtrl.Server
 
-Library         HttpCtrl.Client
 Library         Collections
+Library         DateTime
 
 *** Test Cases ***
 
@@ -25,6 +25,17 @@ Send Request Without Reply
 
     Should Be Equal   ${status}   ${None}
     Should Be Equal   ${body}     ${None}
+
+
+Wait Request During 2 Seconds
+    [Teardown]  Stop Server
+    Start Server        127.0.0.1   8000
+
+    ${start time}=     Get Current Date
+    Run Keyword And Expect Error   *   Wait For Request   2
+    ${end time}=       Get Current Date
+    ${duration}=       Subtract Date From Date   ${end time}   ${start time}
+    Should Be Equal As Numbers   ${2}   ${duration}   precision=1
 
 
 Receive No Async Responses

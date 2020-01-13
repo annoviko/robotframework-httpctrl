@@ -734,13 +734,17 @@ class Server:
             logger.info("HTTP server is stopped.")
 
 
-    def wait_for_request(self):
+    def wait_for_request(self, timeout=5):
         """
 
         Command to server to wait incoming request. This call is blocked until HTTP request arrives. Basically server
         receives all requests after \`Start Server\` and places them to internal queue. When test call function
         \`Wait For Request\` it checks the queue and if it is not empty returns the first request in the queue. If the
-        queue is empty then function waits when the server receives request and place it to the queue.
+        queue is empty then function waits when the server receives request and place it to the queue. There is
+        default time period '5 seconds' to wait request and this waiting time can be changed. If during wait time the
+        request is not received then timeout error occurs.
+
+        `timeout` [in] (int): Period of time in seconds when a request should be received by HTTP server.
 
         Example how to wait request.
 
@@ -752,8 +756,18 @@ class Server:
 
             Wait For Request
 
+        Example how to wait request during 2 seconds.
+
+        +------------------+---+
+        | Wait For Request | 2 |
+        +------------------+---+
+
+        .. code:: text
+
+            Wait For Request   2
+
         """
-        self.__request = RequestStorage().pop()
+        self.__request = RequestStorage().pop(int(timeout))
         if self.__request is None:
             raise AssertionError("Timeout: request was not received.")
 
