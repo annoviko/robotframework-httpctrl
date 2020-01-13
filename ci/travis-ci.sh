@@ -27,7 +27,7 @@ python3 -m robot.run *.robot
 echo "Upload artifats to cloud."
 cd ../
 
-PROJECT_NAME = robotframework-httpctrl
+PROJECT_NAME=robotframework-httpctrl
 python3 ci/cloud $CLOUD_TOKEN mkdir /$PROJECT_NAME
 python3 ci/cloud $CLOUD_TOKEN mkdir /$PROJECT_NAME/$TRAVIS_BRANCH
 python3 ci/cloud $CLOUD_TOKEN mkdir /$PROJECT_NAME/$TRAVIS_BRANCH/$TRAVIS_BUILD_NUMBER
