@@ -23,21 +23,24 @@ echo "Run tests for HttpCtrl."
 cd ../tst || exit $EXIT_CODE_INCORRECT_PATH
 python3 -m robot.run *.robot
 
+# upload artifats
+echo "Upload artifats to cloud."
+cd ../
+
+python3 ci/cloud $CLOUD_TOKEN mkdir /$PROJECT_NAME
+python3 ci/cloud $CLOUD_TOKEN mkdir /$PROJECT_NAME/$TRAVIS_BRANCH
+
+ARTIFACT_FILEPATH=/$PROJECT_NAME/$TRAVIS_BRANCH
+
+python3 ci/cloud $CLOUD_TOKEN upload tst/report.html $ARTIFACT_FILEPATH/report.html
+python3 ci/cloud $CLOUD_TOKEN upload tst/output.xml $ARTIFACT_FILEPATH/output.xml
+python3 ci/cloud $CLOUD_TOKEN upload tst/log.html $ARTIFACT_FILEPATH/log.html
+
 # check testing results
 result=$?
 if [ $result -ne 0 ]
 then
     echo "Testing results contain errors - mark build as a failure."
-
-    python3 ci/cloud $CLOUD_TOKEN mkdir /$PROJECT_NAME
-    python3 ci/cloud $CLOUD_TOKEN mkdir /$PROJECT_NAME/$TRAVIS_BRANCH
-
-    ARTIFACT_FILEPATH=/$PROJECT_NAME/$TRAVIS_BRANCH
-
-    python3 ci/cloud $CLOUD_TOKEN upload report.html $ARTIFACT_FILEPATH/report.html
-    python3 ci/cloud $CLOUD_TOKEN upload output.xml $ARTIFACT_FILEPATH/output.xml
-    python3 ci/cloud $CLOUD_TOKEN upload log.html $ARTIFACT_FILEPATH/log.html
-
     exit $EXIT_CODE_FAILED_TESTING
 fi
 
