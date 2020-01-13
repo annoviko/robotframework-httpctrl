@@ -38,8 +38,8 @@ def load_readme():
 
 setup(
     name='robotframework-httpctrl',
-    packages=['HttpCtrl'],
-    version='0.1.4',
+    packages=['HttpCtrl', 'HttpCtrl.utils'],
+    version='0.1.5',
     description='robotframework-httpctrl is a library for Robot Framework that provides HTTP/HTTPS client and HTTP server services',
     platforms='any',
     long_description=load_readme(),
