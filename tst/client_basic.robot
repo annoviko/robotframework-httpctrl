@@ -53,6 +53,23 @@ Receive No Async Responses
     Should Be Equal   ${response}   ${None}
 
 
+Receive Async For One Connection
+    [Teardown]  Stop Server
+    Initialize Client   127.0.0.1   8000
+    Start Server        127.0.0.1   8000
+
+    ${connection 1}=   Send HTTP Request Async   POST   /post   Post Message
+
+    ${response}=   Get Async Response   ${connection 1}   1
+    Should Be Equal   ${response}   ${None}
+
+    Wait For Request
+    Reply By   200   Post Response
+
+    ${response}=   Get Async Response   ${connection 1}   1
+    Should Not Be Equal   ${response}   ${None}
+
+
 Receive Async Responses
     [Teardown]  Stop Server
     Initialize Client   127.0.0.1   8000
@@ -69,9 +86,7 @@ Receive Async Responses
     Set Reply Header   Another-Key   Another-Value
     Reply by   201   Put Response
 
-    Sleep   200ms
-
-    ${response}=   Get Async Response   ${connection 1}
+    ${response}=   Get Async Response   ${connection 1}   1
     Should Not Be Equal   ${response}   ${None}
     ${status}=     Get Status From Response    ${response}
     ${body}=       Get Body From Response      ${response}
@@ -80,7 +95,7 @@ Receive Async Responses
     Should Be Equal   ${body}     Post Response
     Dictionary Should Contain Item   ${headers}   Header-Key   Header-Value
 
-    ${response}=   Get Async Response   ${connection 2}
+    ${response}=   Get Async Response   ${connection 2}   1
     Should Not Be Equal   ${response}   ${None}
     ${status}=     Get Status From Response    ${response}
     ${body}=       Get Body From Response      ${response}
@@ -111,10 +126,10 @@ Receive Only One Async Response
     Set Reply Header   Another-Key   Another-Value
     Reply by   201   Put Response
 
-    ${response}=   Get Async Response   ${connection 1}
+    ${response}=   Get Async Response   ${connection 1}   1
     Should Be Equal   ${response}   ${None}
 
-    ${response}=   Get Async Response   ${connection 2}
+    ${response}=   Get Async Response   ${connection 2}   1
     Should Not Be Equal   ${response}   ${None}
     ${status}=     Get Status From Response    ${response}
     ${body}=       Get Body From Response      ${response}

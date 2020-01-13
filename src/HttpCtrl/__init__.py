@@ -481,7 +481,11 @@ class Client:
                 if connection in self.__async_queue:
                     return self.__async_queue.pop(connection)
 
-                self.__event_queue.wait_for(connection not in self.__async_queue, int(timeout))
+                def predicate():
+                    return connection in self.__async_queue
+
+                self.__event_queue.wait_for(predicate, int(timeout))
+                end_time = datetime.datetime.now()
 
             return self.__async_queue.pop(connection, None)
 

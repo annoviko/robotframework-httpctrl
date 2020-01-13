@@ -1,10 +1,22 @@
 ------------------------------------------------------------------------
 
+CHANGE NOTES FOR 0.1.6 (RELEASED: Jan 13, 2020)
+
+------------------------------------------------------------------------
+
+CORRECTED MAJOR BUGS:
+
+- Fixed bug where function `Get Async Response` hangs when timeout is specified and message is not received (HttpCtrl.Client).
+  See: https://github.com/annoviko/robotframework-httpctrl/issues/13
+
+
+------------------------------------------------------------------------
+
 CHANGE NOTES FOR 0.1.5 (RELEASED: Jan 13, 2020)
 
 ------------------------------------------------------------------------
 
-GENERAL CHANGES:
+CORRECTED MAJOR BUGS:
 
 - Missing package in setup.py.
   See: https://github.com/annoviko/robotframework-httpctrl/issues/10
