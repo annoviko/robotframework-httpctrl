@@ -29,8 +29,9 @@ cd ../
 
 python3 ci/cloud $CLOUD_TOKEN mkdir /$PROJECT_NAME
 python3 ci/cloud $CLOUD_TOKEN mkdir /$PROJECT_NAME/$TRAVIS_BRANCH
+python3 ci/cloud $CLOUD_TOKEN mkdir /$PROJECT_NAME/$TRAVIS_BRANCH/$TRAVIS_BUILD_NUMBER
 
-ARTIFACT_FILEPATH=/$PROJECT_NAME/$TRAVIS_BRANCH
+ARTIFACT_FILEPATH=/$PROJECT_NAME/$TRAVIS_BRANCH/$TRAVIS_BUILD_NUMBER
 
 python3 ci/cloud $CLOUD_TOKEN upload tst/report.html $ARTIFACT_FILEPATH/report.html
 python3 ci/cloud $CLOUD_TOKEN upload tst/output.xml $ARTIFACT_FILEPATH/output.xml
