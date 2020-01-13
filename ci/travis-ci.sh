@@ -22,6 +22,7 @@ echo "Path '$PYTHONPATH' is exported."
 echo "Run tests for HttpCtrl."
 cd ../tst || exit $EXIT_CODE_INCORRECT_PATH
 python3 -m robot.run *.robot
+result=$?
 
 # upload artifats
 echo "Upload artifats to cloud."
@@ -48,7 +49,7 @@ fi
 
 # generate documentation
 echo "Generate documentation for HttpCtrl."
-cd ../src || exit $EXIT_CODE_INCORRECT_PATH
+cd src || exit $EXIT_CODE_INCORRECT_PATH
 python3 -m robot.libdoc -v 0.1.5 -F reST HttpCtrl.Client client.html
 python3 -m robot.libdoc -v 0.1.5 -F reST HttpCtrl.Server server.html
 python3 -m robot.libdoc -v 0.1.5 -F reST HttpCtrl.Json json.html

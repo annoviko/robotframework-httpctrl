@@ -69,6 +69,8 @@ Receive Async Responses
     Set Reply Header   Another-Key   Another-Value
     Reply by   201   Put Response
 
+    Sleep   200ms
+
     ${response}=   Get Async Response   ${connection 1}
     Should Not Be Equal   ${response}   ${None}
     ${status}=     Get Status From Response    ${response}
