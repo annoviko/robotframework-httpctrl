@@ -70,6 +70,23 @@ Receive Async For One Connection
     Should Not Be Equal   ${response}   ${None}
 
 
+Receive Async For One Connection IPv6
+    [Teardown]  Stop Server
+    Initialize Client   0000:0000:0000:0000:0000:0000:0000:0001   8000
+    Start Server        0000:0000:0000:0000:0000:0000:0000:0001   8000
+
+    ${connection 1}=   Send HTTP Request Async   POST   /post   Post Message
+
+    ${response}=   Get Async Response   ${connection 1}   1
+    Should Be Equal   ${response}   ${None}
+
+    Wait For Request
+    Reply By   200   Post Response
+
+    ${response}=   Get Async Response   ${connection 1}   1
+    Should Not Be Equal   ${response}   ${None}
+
+
 Receive Async Responses
     [Teardown]  Stop Server
     Initialize Client   127.0.0.1   8000

@@ -128,11 +128,17 @@ class Client:
 
         `port` [in] (string|integer): Port of a server which client will use for communication. Optional argument.
 
-        Example when server is located on machine with address 192.168.0.1 and port 8000:
+        Example when server is located on a machine with address 192.168.0.1 and port 8000:
 
         +-------------------+-------------+------+
         | Initialize Client | 192.168.0.1 | 8000 |
         +-------------------+-------------+------+
+
+        Example when server is located on a machine with IPv6 address 0000:0000:0000:0000:0000:0000:0000:0001 and port 8000:
+
+        +-------------------+-----------------------------------------+------+
+        | Initialize Client | 0000:0000:0000:0000:0000:0000:0000:0001 | 8000 |
+        +-------------------+-----------------------------------------+------+
 
         .. code:: text
 
@@ -630,6 +636,16 @@ class Server:
 
         Terminate HTTP Server
             Stop Server
+
+    In case of requirement to use IPv6 the keyword `Initialize HTTP Client And Server` might be the following:
+
+    .. code:: robotframework
+
+        *** Keywords ***
+
+        Initialize HTTP Client And Server
+            Initialize Client   0000:0000:0000:0000:0000:0000:0000:0001   8000
+            Start Server        0000:0000:0000:0000:0000:0000:0000:0001   8000
 
     """
 

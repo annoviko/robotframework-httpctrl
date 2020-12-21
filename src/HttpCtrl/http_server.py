@@ -21,6 +21,8 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 
 """
 
+import ipaddress
+import socket
 import threading
 
 from socketserver import TCPServer
@@ -28,6 +30,10 @@ from socketserver import TCPServer
 from HttpCtrl.http_handler import HttpHandler
 from HttpCtrl.internal_messages import TerminationRequest
 from HttpCtrl.response_storage import ResponseStorage
+
+
+class TCPServerIPv6(TCPServer):
+    address_family = socket.AF_INET6
 
 
 class HttpServer:
@@ -51,7 +57,7 @@ class HttpServer:
         TCPServer.allow_reuse_address = True
 
         self.__handler = HttpHandler
-        self.__server = TCPServer((self.__host, self.__port), self.__handler)
+        self.__server = self.__create_tcp_server()
 
         try:
             with self.__cv_run:
@@ -81,3 +87,11 @@ class HttpServer:
 
             with self.__cv_run:
                 self.__is_run_state = False
+
+
+    def __create_tcp_server(self):
+        try:
+            ipaddress.IPv6Address(self.__host)  # if throws exception then address is not IPv6
+            return TCPServerIPv6((self.__host, self.__port), self.__handler)
+        except:
+            return TCPServer((self.__host, self.__port), self.__handler)

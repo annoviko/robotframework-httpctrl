@@ -3,7 +3,7 @@
 HttpCtrl library for Robot Framework
 ====================================
 
-**RobotFramework-HttpCtrl** is a library for Robot Framework that provides HTTP/HTTPS client and HTTP server services
+**RobotFramework-HttpCtrl** is a library for Robot Framework that provides HTTP/HTTPS client and HTTP server (IPv4 and IPv6) services
 to make REST API testing easy.
 
 **Version**: 0.1.x
@@ -13,6 +13,22 @@ to make REST API testing easy.
 **License**: GNU General Public License
 
 **Documentation**: https://annoviko.github.io/robotframework-httpctrl/
+
+
+Request Feature
+===============
+
+New features are implemented by request that can be created here using issues [`Press Me to Create a Feature Request`_]. Please, do not hesitate to create feature requests.
+
+.. _Press Me to Create a Feature Request: https://github.com/annoviko/robotframework-httpctrl/issues/new?assignees=&labels=&template=feature_request.md&title=
+
+
+Bug Reporting
+=============
+
+Please, do not hesitate to report about bugs using issues here [`Press Me to Report a Bug`_].
+
+.. _Press Me to Report a Bug: https://github.com/annoviko/robotframework-httpctrl/issues/new?assignees=&labels=bug&template=bug_report.md&title=
 
 
 Dependencies
