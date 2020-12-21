@@ -1,12 +1,24 @@
 ------------------------------------------------------------------------
 
+CHANGE NOTES FOR 0.1.7 (RELEASED: Dec 21, 2020)
+
+------------------------------------------------------------------------
+
+GENERAL CHANGES:
+
+- Supported IPv6 address (HttpCtrl.Client, HttpCtrl.Client).
+  https://github.com/annoviko/robotframework-httpctrl/issues/15
+
+
+------------------------------------------------------------------------
+
 CHANGE NOTES FOR 0.1.6 (RELEASED: Jan 13, 2020)
 
 ------------------------------------------------------------------------
 
 CORRECTED MAJOR BUGS:
 
-- Fixed bug where function `Get Async Response` hangs when timeout is specified and message is not received (HttpCtrl.Client).
+- Fixed bug where function `Get Async Response` hangs when timeout is specified and message is not received (HttpCtrl.Server).
   See: https://github.com/annoviko/robotframework-httpctrl/issues/13
 
 
