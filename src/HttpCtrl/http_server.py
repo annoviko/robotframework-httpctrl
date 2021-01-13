@@ -90,8 +90,20 @@ class HttpServer:
 
 
     def __create_tcp_server(self):
+        tcp_server = self.__create_ipv6_tcp_server()
+        if tcp_server is not None:
+            return tcp_server
+
+        return self.__create_ipv4_tcp_server()
+
+
+    def __create_ipv6_tcp_server(self):
         try:
             ipaddress.IPv6Address(self.__host)  # if throws exception then address is not IPv6
             return TCPServerIPv6((self.__host, self.__port), self.__handler)
         except:
-            return TCPServer((self.__host, self.__port), self.__handler)
+            return None
+
+
+    def __create_ipv4_tcp_server(self):
+        return TCPServer((self.__host, self.__port), self.__handler)
