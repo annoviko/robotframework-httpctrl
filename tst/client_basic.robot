@@ -72,8 +72,8 @@ Receive Async For One Connection
 
 Receive Async For One Connection IPv6
     [Teardown]  Stop Server
-    Initialize Client   0000:0000:0000:0000:0000:0000:0000:0001   8000
-    Start Server        0000:0000:0000:0000:0000:0000:0000:0001   8000
+    Initialize Client   0000:0000:0000:0000:0000:0000:0000:0001   42001
+    Start Server        0000:0000:0000:0000:0000:0000:0000:0001   42001
 
     ${connection 1}=   Send HTTP Request Async   POST   /post   Post Message
 
