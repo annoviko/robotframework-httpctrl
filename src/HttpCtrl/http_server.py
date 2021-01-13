@@ -27,6 +27,8 @@ import threading
 
 from socketserver import TCPServer
 
+from robot.api import logger
+
 from HttpCtrl.http_handler import HttpHandler
 from HttpCtrl.internal_messages import TerminationRequest
 from HttpCtrl.response_storage import ResponseStorage
@@ -100,10 +102,19 @@ class HttpServer:
     def __create_ipv6_tcp_server(self):
         try:
             ipaddress.IPv6Address(self.__host)  # if throws exception then address is not IPv6
-            return TCPServerIPv6((self.__host, self.__port), self.__handler)
+
+            tcp_server = TCPServerIPv6((self.__host, self.__port), self.__handler)
+
+            logger.info("IPv6 TCP server '%s:%s' is created for HTTP." % (self.__host, str(self.__port)))
+
+            return tcp_server
         except:
             return None
 
 
     def __create_ipv4_tcp_server(self):
-        return TCPServer((self.__host, self.__port), self.__handler)
+        tcp_server = TCPServer((self.__host, self.__port), self.__handler)
+
+        logger.info("IPv4 TCP server '%s:%s' is created for HTTP." % (self.__host, str(self.__port)))
+
+        return tcp_server
