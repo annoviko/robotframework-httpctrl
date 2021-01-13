@@ -1,3 +1,5 @@
+sudo: required
+group: deprecated-2017Q4
 dist: bionic
 language: python
 python:
