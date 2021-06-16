@@ -104,7 +104,7 @@ class HttpHandler(SimpleHTTPRequestHandler):
             logger.error("Response is not provided for incoming request.")
             return
 
-        self.send_response(response.get_status(), response.get_body())
+        self.send_response(response.get_status())
 
         headers = response.get_headers()
         for key, value in headers.items():
