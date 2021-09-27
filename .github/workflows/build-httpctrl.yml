@@ -5,6 +5,7 @@ on: [push]
 jobs:
   build:
     runs-on: ubuntu-latest
+    timeout-minutes: 5
 
     steps:
     - name: Set up Python 3.9
@@ -18,3 +19,12 @@ jobs:
     - name: Run multi-line script
       shell: bash
       run: ci/github-ci.sh
+
+    - name: Archive artifacts
+      uses: actions/upload-artifact@v2
+      with:
+          name: SCT test reports
+          path:
+              - tst/log.html
+              - tst/output.xml
+              - tst/report.html
