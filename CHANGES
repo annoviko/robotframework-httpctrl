@@ -1,12 +1,15 @@
 ------------------------------------------------------------------------
 
-CHANGE NOTES FOR 0.1.7 (RELEASED: Dec 21, 2020)
+CHANGE NOTES FOR 0.1.7 (RELEASED: Sep 27, 2021)
 
 ------------------------------------------------------------------------
 
 GENERAL CHANGES:
 
-- Supported IPv6 address (HttpCtrl.Client, HttpCtrl.Client).
+- Bind client to the specific address and port (HttpCtrl.Client).
+  https://github.com/annoviko/robotframework-httpctrl/issues/21
+
+- Supported IPv6 address (HttpCtrl.Client, HttpCtrl.Server).
   https://github.com/annoviko/robotframework-httpctrl/issues/15
 
 
