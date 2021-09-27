@@ -24,7 +24,7 @@ jobs:
       uses: actions/upload-artifact@v2
       with:
           name: SCT test reports
-          path:
-              - tst/log.html
-              - tst/output.xml
-              - tst/report.html
+          path: |
+              tst/log.html
+              tst/output.xml
+              tst/report.html
