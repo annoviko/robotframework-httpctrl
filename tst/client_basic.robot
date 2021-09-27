@@ -160,3 +160,29 @@ Receive Only One Async Response
 
     ${response}=   Get Async Response   ${connection 2}
     Should Be Equal   ${response}   ${None}
+
+
+Bind Client to Address
+    [Teardown]  Stop Server
+    Initialize Client   127.0.0.1   8000   127.0.0.1   8001
+    Start Server        127.0.0.1   8000
+
+    ${connection 1}=   Send HTTP Request Async   POST   /post   Post Message
+
+    ${response}=   Get Async Response   ${connection 1}   1
+    Should Be Equal   ${response}   ${None}
+
+    Wait For Request
+
+    ${source address}=   Get Request Source Address
+    ${source port}=      Get Request Source Port
+    ${source port as integer}=   Get Request Source Port As Integer
+
+    Should Be Equal   ${source address}   127.0.0.1
+    Should Be Equal   ${source port}      8001
+    Should Be Equal   ${source port as integer}   ${8001}
+
+    Reply By   200   Post Response
+
+    ${response}=   Get Async Response   ${connection 1}   1
+    Should Not Be Equal   ${response}   ${None}

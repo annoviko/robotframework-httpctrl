@@ -105,8 +105,10 @@ class Client:
     """
 
     def __init__(self):
-        self.__host = None
-        self.__port = None
+        self.__server_host = None
+        self.__server_port = None
+        self.__client_host = None
+        self.__client_port = None
 
         self.__request_headers = {}
 
@@ -119,14 +121,18 @@ class Client:
         self.__async_queue = {}
 
 
-    def initialize_client(self, host, port=None):
+    def initialize_client(self, server_host, server_port=None, client_host=None, client_port=None):
         """
 
         Initialize client using host and port of a server which will be used for communication.
 
-        `host` [in] (string): Host of a server which client will use for communication.
+        `server_host` [in] (string): Host of a server that is going to be used for communication by a client.
 
-        `port` [in] (string|integer): Port of a server which client will use for communication. Optional argument.
+        `server_port` [in] (string|integer): Port of a server that is going to be used for communication by a client. Optional argument.
+
+        `client_host` [in] (string): Host of a client (source) that is used to bind. Optional argument.
+
+        `client_port` [in] (string|integer): Port of a client (source) that is used to bind. Optional argument.
 
         Example when server is located on a machine with address 192.168.0.1 and port 8000:
 
@@ -154,21 +160,42 @@ class Client:
 
             Initialize Client   www.httpbin.org
 
+        Example when there is a requirement to bind a client to the specific address 192.168.0.1 and port 8001:
+
+        +-------------------+-------------+------+-------------+------+
+        | Initialize Client | 192.168.0.5 | 8000 | 192.168.0.1 | 8001 |
+        +-------------------+-------------+------+-------------+------+
+
+        .. code:: text
+
+            Initialize Client   192.168.0.5   8000   192.168.0.1   8001
+
         """
-        self.__host = host
-        self.__port = port or ""
+        self.__server_host = server_host
+        self.__server_port = server_port or ""
+
+        self.__client_host = client_host
+        self.__client_port = client_port
+
+
+    def __get_source_address(self):
+        if (self.__client_host is None) and (self.__client_port is None):
+            return None
+
+        return self.__client_host, int(self.__client_port)
 
 
     def __send(self, connection_type, method, url, body):
-        if self.__host is None or self.__port is None:
+        if self.__server_host is None or self.__server_port is None:
             raise AssertionError("Client is not initialized (host and port are empty).")
 
-        endpoint = "%s:%s" % (self.__host, str(self.__port))
+        endpoint = "%s:%s" % (self.__server_host, str(self.__server_port))
+        source_address = self.__get_source_address()
 
         if connection_type == 'http':
-            connection = http.client.HTTPConnection(endpoint)
+            connection = http.client.HTTPConnection(endpoint, source_address=source_address)
         elif connection_type == 'https':
-            connection = http.client.HTTPSConnection(endpoint)
+            connection = http.client.HTTPSConnection(endpoint, source_address=source_address)
         else:
             raise AssertionError("Internal error of the client, please report to "
                                  "'https://github.com/annoviko/robotframework-httpctrl/issues'.")
@@ -856,6 +883,66 @@ class Server:
         self.wait_for_request()
         ResponseStorage().push(IgnoreRequest())
         logger.info("Request is ignored by closing connection.")
+
+
+    def get_request_source_address(self):
+        """
+
+        Returns source address (client address) of received request as string value. This function should be called
+        after \`Wait For Request\`, otherwise None is returned.
+
+        Example how to obtain source address of incoming request:
+
+        +----------------------------+
+        | Get Request Source Address |
+        +----------------------------+
+
+        .. code:: text
+
+            ${source address}=   Get Request Source Address
+
+        """
+        return self.__request.get_source_address()
+
+
+    def get_request_source_port(self):
+        """
+
+        Returns source port (client port) of received request as string value. This function should be called
+        after \`Wait For Request\`, otherwise None is returned.
+
+        Example how to obtain source port of incoming request:
+
+        +-------------------------+
+        | Get Request Source Port |
+        +-------------------------+
+
+        .. code:: text
+
+            ${source port}=   Get Request Source Port
+
+        """
+        return str(self.__request.get_source_port())
+
+
+    def get_request_source_port_as_integer(self):
+        """
+
+        Returns source port (client port) of received request as integer value. This function should be called
+        after \`Wait For Request\`, otherwise None is returned.
+
+        Example how to obtain source port of incoming request:
+
+        +------------------------------------+
+        | Get Request Source Port As Integer |
+        +------------------------------------+
+
+        .. code:: text
+
+            ${source port}=   Get Request Source Port As Integer
+
+        """
+        return self.__request.get_source_port()
 
 
     def get_request_method(self):
