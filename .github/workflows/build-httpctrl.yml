@@ -1,4 +1,4 @@
-name: Build and test crwproc application
+name: Build and test robotframework-httpctrl library
 
 on: [push]
 
@@ -16,5 +16,5 @@ jobs:
       uses: actions/checkout@v2
 
     - name: Run multi-line script
-      shell: pwsh
+      shell: bash
       run: ci/github-ci.sh
