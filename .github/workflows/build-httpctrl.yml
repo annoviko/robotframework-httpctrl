@@ -1,0 +1,20 @@
+name: Build and test crwproc application
+
+on: [push]
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v2
+      with:
+        python-version: 3.9
+
+    - name: Clone repository
+      uses: actions/checkout@v2
+
+    - name: Run multi-line script
+      shell: pwsh
+      run: ci/github-ci.sh
