@@ -86,3 +86,24 @@ Server Receives Two Messages at Once
     ${response status}=   Get Status From Response   ${response 2}
     ${expected status}=   Convert To Integer   201
     Should Be Equal   ${response status}   ${expected status}
+
+
+Response Body
+    [Teardown]  Stop Server
+    Initialize Client   127.0.0.1   8000
+    Start Server        127.0.0.1   8000
+
+    ${connection}=   Send HTTP Request Async   POST   /post   Post Message
+
+    ${response}=   Get Async Response   ${connection}   1
+    Should Be Equal   ${response}   ${None}
+
+    Wait For Request
+    Reply By   200   Post Response
+
+    ${response}=   Get Async Response   ${connection}   1
+    ${response status}=   Get Status From Response   ${response}
+    ${response reason}=   Get Reason From Response   ${response}
+
+    Should Be Equal   ${response status}    ${200}
+    Should Be Equal   ${response reason}    OK

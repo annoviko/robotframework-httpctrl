@@ -22,8 +22,9 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 """
 
 class Response:
-    def __init__(self, status, body, headers):
+    def __init__(self, status, reason, body, headers):
         self.__status = status
+        self.__reason = reason
         self.__body = body
         self.__headers = headers
 
@@ -34,10 +35,13 @@ class Response:
         return "%s\n%s" % (str(self.__status), self.__body)
 
     def __copy__(self):
-        return Response(self.__status, self.__body, self.__headers)
+        return Response(self.__status, self.__reason, self.__body, self.__headers)
 
     def get_status(self):
         return self.__status
+
+    def get_reason(self):
+        return self.__reason
 
     def get_body(self):
         return self.__body

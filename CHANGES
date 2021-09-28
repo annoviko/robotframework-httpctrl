@@ -1,5 +1,17 @@
 ------------------------------------------------------------------------
 
+CHANGE NOTES FOR 0.1.9 (RELEASED: -)
+
+------------------------------------------------------------------------
+
+CORRECTED MAJOR BUGS:
+
+- Response body was used as a response reason (HttpCtrl.Server).
+  https://github.com/annoviko/robotframework-httpctrl/issues/19
+
+
+------------------------------------------------------------------------
+
 CHANGE NOTES FOR 0.1.8 (RELEASED: Sep 28, 2021)
 
 ------------------------------------------------------------------------

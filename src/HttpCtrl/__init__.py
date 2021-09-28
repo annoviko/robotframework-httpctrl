@@ -114,6 +114,7 @@ class Client:
 
         self.__response_guard = threading.Lock()
         self.__response_status = None
+        self.__response_message = None
         self.__response_body = None
         self.__response_headers = None
 
@@ -228,6 +229,7 @@ class Client:
 
             with self.__response_guard:
                 self.__response_status = server_response.status
+                self.__response_message = server_response.msg
                 self.__response_headers = server_response.headers
                 self.__response_body = server_response.read().decode('utf-8')
 
@@ -243,10 +245,11 @@ class Client:
             server_response = connection.getresponse()
 
             with self.__event_queue:
-                response = Response(server_response.status, server_response.read().decode('utf-8'),
-                                    server_response.headers)
+                response_instance = Response(server_response.status, server_response.reason,
+                                             server_response.read().decode('utf-8'),
+                                             server_response.headers)
 
-                self.__async_queue[connection] = response
+                self.__async_queue[connection] = response_instance
                 self.__event_queue.notify_all()
 
         except Exception as exception:
@@ -439,6 +442,13 @@ class Client:
             return status
 
 
+    def get_response_message(self):
+        with self.__response_guard:
+            message = self.__response_message
+            self.__response_message = None
+            return message
+
+
     def get_response_headers(self):
         """
 
@@ -560,6 +570,14 @@ class Client:
             return None
 
         return response.get_status()
+
+
+    def get_reason_from_response(self, response):
+        if response is None:
+            logger.error("Impossible to get reason from 'None' response object.")
+            return None
+
+        return response.get_reason()
 
 
     def get_headers_from_response(self, response):
@@ -1101,7 +1119,7 @@ class Server:
             Reply By   204   ${response body}
 
         """
-        response = Response(int(status), body, self.__response_headers)
+        response = Response(int(status), None, body, self.__response_headers)
         ResponseStorage().push(response)
 
 
