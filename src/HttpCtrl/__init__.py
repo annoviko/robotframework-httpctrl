@@ -573,6 +573,28 @@ class Client:
 
 
     def get_reason_from_response(self, response):
+        """
+
+        Return response reason as a string from the specified response object that was obtained by function
+        'Get Async Response'. For example, response code and reason are '200 OK', in this case 'OK' is going
+        to be returned by this function.
+
+        Example how to get response reason from a response object:
+
+        +---------------------+--------------------------+-------------+
+        | ${response reason}= | Get Reason From Response | ${response} |
+        +---------------------+--------------------------+-------------+
+
+        .. code:: text
+
+            ${connection}=      Send HTTP Async Request   GET             /get
+
+            # Some other actions ...
+
+            ${response}=          Get Async Response         ${connection}   5
+            ${response reason}=   Get Reason From Response   ${response}
+
+        """
         if response is None:
             logger.error("Impossible to get reason from 'None' response object.")
             return None
@@ -1095,7 +1117,7 @@ class Server:
         Send response using specified HTTP code and body. This function should be called after \`Wait For Request\`.
 
         `status` [in] (string): HTTP status code for response.
-        `body` [in] (string): Body that should contain response.
+        `body` [in] (string|bytes): Body that should contain response.
 
         Example how to reply by 204 (No Content) to incoming request:
 
@@ -1121,7 +1143,6 @@ class Server:
         """
         response = Response(int(status), None, body, self.__response_headers)
         ResponseStorage().push(response)
-
 
 
 class Json:

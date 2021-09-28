@@ -1,6 +1,7 @@
 *** Settings ***
 
 Library         DateTime
+Library         String
 Library         HttpCtrl.Client
 Library         HttpCtrl.Server
 
@@ -107,3 +108,24 @@ Response Body
 
     Should Be Equal   ${response status}    ${200}
     Should Be Equal   ${response reason}    OK
+
+
+Reply by Bytes Body
+    [Teardown]  Stop Server
+    Initialize Client   127.0.0.1   8000
+    Start Server        127.0.0.1   8000
+
+    ${connection}=   Send HTTP Request Async   POST   /post   Post Message
+
+    ${response}=   Get Async Response   ${connection}   1
+    Should Be Equal   ${response}   ${None}
+
+    ${body bytes}=   Evaluate   bytes((0x0a, 0x12, 0x0a))
+    Wait For Request
+    Reply By   200   ${body bytes}
+
+    ${response}=   Get Async Response   ${connection}   1
+    ${response body}=   Get Body From Response   ${response}
+    ${response body bytes}=   Encode String To Bytes   ${response body}   UTF-8
+
+    Should Be Equal   ${response body bytes}   ${body bytes}

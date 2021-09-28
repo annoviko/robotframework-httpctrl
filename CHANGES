@@ -6,6 +6,9 @@ CHANGE NOTES FOR 0.1.9 (RELEASED: -)
 
 CORRECTED MAJOR BUGS:
 
+- Support bytes body type for `Reply By` (HttpCtrl.Server).
+  https://github.com/annoviko/robotframework-httpctrl/issues/17
+
 - Response body was used as a response reason (HttpCtrl.Server).
   https://github.com/annoviko/robotframework-httpctrl/issues/19
 

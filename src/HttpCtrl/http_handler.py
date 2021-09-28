@@ -110,10 +110,12 @@ class HttpHandler(SimpleHTTPRequestHandler):
         for key, value in headers.items():
             self.send_header(key, value)
 
-        body = None
-        if response.get_body() is not None:
-            body = response.get_body().encode("utf-8")
-            self.send_header('Content-Length', len(body))
+        body = response.get_body()
+        if body is not None:
+            if isinstance(response.get_body(), str):
+                body = response.get_body().encode("utf-8")
+
+            self.send_header('Content-Length', str(len(body)))
 
         self.end_headers()
 
