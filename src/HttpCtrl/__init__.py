@@ -121,7 +121,7 @@ class Client:
         self.__async_queue = {}
 
 
-    def initialize_client(self, server_host, server_port=None, client_host=None, client_port=None):
+    def initialize_client(self, server_host, server_port=None, client_host=None, client_port=0):
         """
 
         Initialize client using host and port of a server which will be used for communication.
@@ -160,7 +160,7 @@ class Client:
 
             Initialize Client   www.httpbin.org
 
-        Example when there is a requirement to bind a client to the specific address 192.168.0.1 and port 8001:
+        Example when a client is bind to the specific address 192.168.0.1 and port 8001:
 
         +-------------------+-------------+------+-------------+------+
         | Initialize Client | 192.168.0.5 | 8000 | 192.168.0.1 | 8001 |
@@ -169,6 +169,16 @@ class Client:
         .. code:: text
 
             Initialize Client   192.168.0.5   8000   192.168.0.1   8001
+
+        Example when a client is bind to the specific address only 192.168.0.1 (without port):
+
+        +-------------------+-------------+------+-------------+
+        | Initialize Client | 192.168.0.5 | 8000 | 192.168.0.1 |
+        +-------------------+-------------+------+-------------+
+
+        .. code:: text
+
+            Initialize Client   192.168.0.5   8000   192.168.0.1
 
         """
         self.__server_host = server_host
@@ -179,7 +189,7 @@ class Client:
 
 
     def __get_source_address(self):
-        if (self.__client_host is None) and (self.__client_port is None):
+        if self.__client_host is None:
             return None
 
         return self.__client_host, int(self.__client_port)

@@ -1,12 +1,24 @@
 ------------------------------------------------------------------------
 
+CHANGE NOTES FOR 0.1.8 (RELEASED: Sep 28, 2021)
+
+------------------------------------------------------------------------
+
+GENERAL CHANGES:
+
+- Option to bind client to the specific address only without port (HttpCtrl.Client).
+  https://github.com/annoviko/robotframework-httpctrl/issues/21
+
+
+------------------------------------------------------------------------
+
 CHANGE NOTES FOR 0.1.7 (RELEASED: Sep 27, 2021)
 
 ------------------------------------------------------------------------
 
 GENERAL CHANGES:
 
-- Bind client to the specific address and port (HttpCtrl.Client).
+- Option to bind client to the specific address and port (HttpCtrl.Client).
   https://github.com/annoviko/robotframework-httpctrl/issues/21
 
 - Supported IPv6 address (HttpCtrl.Client, HttpCtrl.Server).
