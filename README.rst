@@ -188,7 +188,7 @@ request for correctness.
         Stop Server
 
 
-.. |Build Status Linux| image:: https://travis-ci.org/annoviko/robotframework-httpctrl.svg?branch=master
-   :target: https://travis-ci.org/annoviko/robotframework-httpctrl
+.. |Build Status Linux| image:: https://github.com/annoviko/robotframework-httpctrl/actions/workflows/build-httpctrl.yml/badge.svg
+   :target: https://github.com/annoviko/robotframework-httpctrl/actions
 .. |PyPi| image:: https://badge.fury.io/py/robotframework-httpctrl.svg
    :target: https://badge.fury.io/py/robotframework-httpctrl

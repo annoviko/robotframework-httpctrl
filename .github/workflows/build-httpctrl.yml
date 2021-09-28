@@ -1,4 +1,4 @@
-name: Build and test robotframework-httpctrl library
+name: build and test status
 
 on: [push]
 
