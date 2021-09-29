@@ -1140,6 +1140,15 @@ class Server:
             ${response body}=   Set Variable   { "status": "accepted" }
             Reply By   204   ${response body}
 
+        Example how to reply with a body represented by a sequence of bytes:
+
+        ..code:: text
+
+            Wait For Request
+
+            ${body bytes}=   Evaluate   bytes((0x0a, 0x12, 0x0a))
+            Reply By   200   ${body bytes}
+
         """
         response = Response(int(status), None, body, self.__response_headers)
         ResponseStorage().push(response)
