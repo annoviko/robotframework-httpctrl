@@ -24,7 +24,6 @@ along with this program.  If not, see <http://www.gnu.org/licenses/>.
 import os
 
 from setuptools import setup
-from setuptools import find_packages
 
 
 def load_readme():

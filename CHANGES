@@ -1,15 +1,17 @@
 ------------------------------------------------------------------------
 
-CHANGE NOTES FOR 0.1.9 (RELEASED: -)
+CHANGE NOTES FOR 0.1.9 (RELEASED: Sep 29, 2021)
 
 ------------------------------------------------------------------------
 
-CORRECTED MAJOR BUGS:
+GENERAL CHANGES:
 
 - Support bytes body type for `Reply By` (HttpCtrl.Server).
   https://github.com/annoviko/robotframework-httpctrl/issues/17
 
-- Response body was used as a response reason (HttpCtrl.Server).
+CORRECTED MAJOR BUGS:
+
+- Fixed bug where response server body was used as a response reason (HttpCtrl.Server).
   https://github.com/annoviko/robotframework-httpctrl/issues/19
 
 
