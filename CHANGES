@@ -1,5 +1,17 @@
 ------------------------------------------------------------------------
 
+CHANGE NOTES FOR 0.1.10 (RELEASED: Oct 10, 2021)
+
+------------------------------------------------------------------------
+
+GENERAL CHANGES:
+
+- Fixed bug where body was not provided for HEAD, OPTION, DELETE and GET methods (HttpCtrl.Server).
+  https://github.com/annoviko/robotframework-httpctrl/issues/24
+
+
+------------------------------------------------------------------------
+
 CHANGE NOTES FOR 0.1.9 (RELEASED: Sep 29, 2021)
 
 ------------------------------------------------------------------------

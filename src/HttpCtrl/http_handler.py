@@ -43,13 +43,11 @@ class HttpHandler(SimpleHTTPRequestHandler):
 
 
     def do_POST(self):
-        body = self.rfile.read(int(self.headers['Content-Length'])).decode('utf-8')
-        self.__default_handler('POST', body)
+        self.__default_handler('POST')
 
 
     def do_PUT(self):
-        body = self.rfile.read(int(self.headers['Content-Length'])).decode('utf-8')
-        self.__default_handler('PUT', body)
+        self.__default_handler('PUT')
 
 
     def do_OPTIONS(self):
@@ -61,8 +59,7 @@ class HttpHandler(SimpleHTTPRequestHandler):
 
 
     def do_PATCH(self):
-        body = self.rfile.read(int(self.headers['Content-Length'])).decode('utf-8')
-        self.__default_handler('PATCH', body)
+        self.__default_handler('PATCH')
 
 
     def do_DELETE(self):
@@ -81,8 +78,17 @@ class HttpHandler(SimpleHTTPRequestHandler):
         return
 
 
-    def __default_handler(self, method, body=None):
+    def __extract_body(self):
+        body_length = int(self.headers.get('Content-Length', 0))
+        if body_length > 0:
+            return self.rfile.read(body_length).decode('utf-8')
+
+        return None
+
+
+    def __default_handler(self, method):
         host, port = self.client_address[:2]
+        body = self.__extract_body()
 
         logger.info("'%s' request is received from '%s:%s'." % (method, host, port))
 

@@ -25,6 +25,21 @@ Receive And Reply To POST
     Should Be Equal   ${body}     ${request body}
 
 
+Receive And Reply To POST without Body
+    Send HTTP Request Async   POST   /post
+
+    Wait For Request
+    Reply By   200
+
+    ${method}=   Get Request Method
+    ${url}=      Get Request Url
+    ${body}=     Get Request Body
+
+    Should Be Equal   ${method}   POST
+    Should Be Equal   ${url}      /post
+    Should Be Equal   ${body}     ${None}
+
+
 Receive And Reply To PUT
     ${request body}=   Set Variable   { "method": "PUT" }
     Send HTTP Request Async   PUT   /put   ${request body}
@@ -39,6 +54,21 @@ Receive And Reply To PUT
     Should Be Equal   ${method}   PUT
     Should Be Equal   ${url}      /put
     Should Be Equal   ${body}     ${request body}
+
+
+Receive And Reply To PUT without Body
+    Send HTTP Request Async   PUT   /put
+
+    Wait For Request
+    Reply By   200
+
+    ${method}=   Get Request Method
+    ${url}=      Get Request Url
+    ${body}=     Get Request Body
+
+    Should Be Equal   ${method}   PUT
+    Should Be Equal   ${url}      /put
+    Should Be Equal   ${body}     ${None}
 
 
 Receive And Reply To PATCH
@@ -57,6 +87,21 @@ Receive And Reply To PATCH
     Should Be Equal   ${body}     ${request body}
 
 
+Receive And Reply To PATCH without Body
+    Send HTTP Request Async   PATCH   /patch
+
+    Wait For Request
+    Reply By   200
+
+    ${method}=   Get Request Method
+    ${url}=      Get Request Url
+    ${body}=     Get Request Body
+
+    Should Be Equal   ${method}   PATCH
+    Should Be Equal   ${url}      /patch
+    Should Be Equal   ${body}     ${None}
+
+
 Receive And Reply To GET
     Send HTTP Request Async   GET   /get
 
@@ -68,6 +113,22 @@ Receive And Reply To GET
 
     Should Be Equal   ${method}   GET
     Should Be Equal   ${url}      /get
+
+
+Receive And Reply To GET with Body
+    ${request body}=   Set Variable   { "method": "GET" }
+    Send HTTP Request Async   GET   /get   ${request body}
+
+    Wait For Request
+    Reply By   200
+
+    ${method}=   Get Request Method
+    ${url}=      Get Request Url
+    ${body}=     Get Request Body
+
+    Should Be Equal   ${method}   GET
+    Should Be Equal   ${url}      /get
+    Should Be Equal   ${body}     ${request body}
 
 
 Receive And Reply To DELETE
@@ -83,6 +144,22 @@ Receive And Reply To DELETE
     Should Be Equal   ${url}      /delete
 
 
+Receive And Reply To DELETE with Body
+    ${request body}=   Set Variable   { "method": "DELETE" }
+    Send HTTP Request Async   DELETE   /delete   ${request body}
+
+    Wait For Request
+    Reply By   200
+
+    ${method}=   Get Request Method
+    ${url}=      Get Request Url
+    ${body}=     Get Request Body
+
+    Should Be Equal   ${method}   DELETE
+    Should Be Equal   ${url}      /delete
+    Should Be Equal   ${body}     ${request body}
+
+
 Receive And Reply To HEAD
     Send HTTP Request Async   HEAD   /head
 
@@ -96,6 +173,22 @@ Receive And Reply To HEAD
     Should Be Equal   ${url}      /head
 
 
+Receive And Reply To HEAD with Body
+    ${request body}=   Set Variable   { "method": "HEAD" }
+    Send HTTP Request Async   HEAD   /head   ${request body}
+
+    Wait For Request
+    Reply By   200
+
+    ${method}=   Get Request Method
+    ${url}=      Get Request Url
+    ${body}=     Get Request Body
+
+    Should Be Equal   ${method}   HEAD
+    Should Be Equal   ${url}      /head
+    Should Be Equal   ${body}     ${request body}
+
+
 Receive And Reply To OPTIONS
     Send HTTP Request Async   OPTIONS   /options
 
@@ -107,6 +200,22 @@ Receive And Reply To OPTIONS
 
     Should Be Equal   ${method}   OPTIONS
     Should Be Equal   ${url}      /options
+
+
+Receive And Reply To OPTIONS with Body
+    ${request body}=   Set Variable   { "method": "OPTIONS" }
+    Send HTTP Request Async   OPTIONS   /options   ${request body}
+
+    Wait For Request
+    Reply By   200
+
+    ${method}=   Get Request Method
+    ${url}=      Get Request Url
+    ${body}=     Get Request Body
+
+    Should Be Equal   ${method}   OPTIONS
+    Should Be Equal   ${url}      /options
+    Should Be Equal   ${body}     ${request body}
 
 
 *** Keywords ***
