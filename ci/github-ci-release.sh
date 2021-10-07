@@ -2,11 +2,6 @@ PATH_ROOT=`readlink -f ..`
 PATH_REPO_CURRENT=`readlink -f .`
 PATH_SOURCE=`readlink -f src`
 
-HTTPCTRL_USERNAME=${{ secrets.HTTPCTRL_USERNAME }}
-HTTPCTRL_PASSWORD=${{ secrets.HTTPCTRL_PASSWORD }}
-TWINE_USERNAME=${{ secrets.TWINE_USERNAME }}
-TWINE_PASSWORD=${{ secrets.TWINE_PASSWORD }}
-
 # packages to generate documentation
 echo "Install packages for release."
 pip3 install robotframework docutils pygments twine
