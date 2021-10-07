@@ -4,6 +4,8 @@ PATH_SOURCE=`readlink -f src`
 
 
 # increment release
+echo "[INFO] Fetch and increment."
+
 version=`cat VERSION`
 pattern="([0-9]+).([0-9]+).([0-9]+)"
 if [[ $version =~ $pattern ]]
@@ -14,7 +16,7 @@ then
 
     micro=$((micro + 1))
 else
-    echo "Impossible to extract version to make release"
+    echo "[ERROR]  Impossible to extract version to make release."
     return -1
 fi
 
@@ -22,11 +24,21 @@ echo "$major.$minor.$micro" > VERSION
 
 
 # push version change to the repository
+echo "[INFO] Update version file in the repository."
+
+commit_message="[ci][release] Update version to $major.$minor.$micro."
+git commit . -m $commit_message
 git push https://$HTTPCTRL_USERNAME:$HTTPCTRL_PASSWORD@github.com/annoviko/robotframework-httpctrl.git --all
+
+if [ $? -ne 0 ]; then
+    echo "[ERROR] Impossible to release the library to PyPi (reason: pushing new version to the repository failed)."
+    return -1
+fi
 
 
 # packages to generate documentation
-echo "Install packages for release."
+echo "[INFO] Install packages that are need to release the library and documentation."
+
 pip3 install robotframework docutils pygments twine
 
 
@@ -34,13 +46,13 @@ pip3 install robotframework docutils pygments twine
 python3 setup.py sdist
 twine upload dist/* -r testpypi
 if [ $? -ne 0 ]; then
-    echo "Impossible to release the library to PyPi."
+    echo "[ERROR] Impossible to release the library to PyPi (reason: uploading to pypi failed)."
     return -1
 fi
 
 
 # Create folder for the documentation
-echo "Clone repository to update documentation."
+echo "[INFO] Clone repository to update documentation."
 
 mkdir $PATH_ROOT/httpctrl-gh-pages
 cd $PATH_ROOT/httpctrl-gh-pages
@@ -52,7 +64,7 @@ PATH_REPO_GH_PAGES=`readlink -f .`
 
 
 # Generate documentation
-echo "Generate documentation."
+echo "[INFO] Generate documentation."
 
 cd $PATH_REPO_CURRENT
 version=`cat VERSION`
@@ -65,12 +77,15 @@ python3 -m robot.libdoc -v $version -F reST HttpCtrl.Json $PATH_REPO_GH_PAGES/js
 
 
 # Commit and push documentation changes
-echo "Upload the documentation."
+echo "[INFO] Upload the documentation."
 
 cd $PATH_REPO_GH_PAGES
 
 commit_message="[ci][release] Release documentation for $major.$minor.$micro."
 git commit . -m $commit_message
-
 git push https://$HTTPCTRL_USERNAME:$HTTPCTRL_PASSWORD@github.com/annoviko/robotframework-httpctrl.git --all
 
+if [ $? -ne 0 ]; then
+    echo "[ERROR] Impossible to release the documentation (reason: pushing new documentation failed)."
+    return -1
+fi
