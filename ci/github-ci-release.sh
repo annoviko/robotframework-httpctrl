@@ -11,7 +11,7 @@ git config --global user.name $HTTPCTRL_USERNAME
 
 
 # assign new version to the library
-echo "[INFO] Assign new version to the library."
+echo "[INFO] Assign new version to the library (user provided value '$REQUESTED_VERSION')."
 
 if [ -z "$REQUESTED_VERSION" ]
     # generate new version by increment
@@ -42,7 +42,7 @@ then
     then
         echo "[INFO] Version has correct format."
     else
-        echo "[ERROR] Incorrect format of the versio."
+        echo "[ERROR] Incorrect format of the version."
         exit -1
     fi
 
