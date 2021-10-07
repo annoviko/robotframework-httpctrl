@@ -32,7 +32,7 @@ if [ -z "$REQUESTED_VERSION" ]
     fi
     
     echo "$major.$minor.$micro" > VERSION
-then
+else
     # use user-provided version of the library
     echo "[INFO] Use user-provided version of the library '$REQUESTED_VERSION'."
     
