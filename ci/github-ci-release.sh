@@ -6,7 +6,7 @@ PATH_SOURCE=`readlink -f src`
 # increment release
 version=`cat VERSION`
 pattern="([0-9]+).([0-9]+).([0-9]+)"
-if [[ $version ~= $pattern ]]
+if [[ $version =~ $pattern ]]
 then
     major="${BASH_REMATCH[1]}"
     minor="${BASH_REMATCH[2]}"
@@ -19,6 +19,10 @@ else
 fi
 
 echo "$major.$minor.$micro" > VERSION
+
+
+# push version change to the repository
+git push https://$HTTPCTRL_USERNAME:$HTTPCTRL_PASSWORD@github.com/annoviko/robotframework-httpctrl.git --all
 
 
 # packages to generate documentation
@@ -64,6 +68,9 @@ python3 -m robot.libdoc -v $version -F reST HttpCtrl.Json $PATH_REPO_GH_PAGES/js
 echo "Upload the documentation."
 
 cd $PATH_REPO_GH_PAGES
+
+commit_message="[ci][release] Release documentation for $major.$minor.$micro."
+git commit . -m $commit_message
 
 git push https://$HTTPCTRL_USERNAME:$HTTPCTRL_PASSWORD@github.com/annoviko/robotframework-httpctrl.git --all
 
