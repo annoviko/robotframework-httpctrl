@@ -1,6 +1,6 @@
 name: release httpctrl
 
-on: [workflow_dispatch]
+on:
     workflow_call:
         inputs:
             requested_version:
