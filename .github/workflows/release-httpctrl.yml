@@ -20,6 +20,7 @@ jobs:
       env:
         HTTPCTRL_USERNAME: ${{ secrets.HTTPCTRL_USERNAME }}
         HTTPCTRL_PASSWORD: ${{ secrets.HTTPCTRL_PASSWORD }}
+        HTTPCTRL_EMAIL: ${{ secrets.HTTPCTRL_EMAIL }}
         TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
         TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
       shell: bash

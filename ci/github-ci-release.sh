@@ -3,6 +3,13 @@ PATH_REPO_CURRENT=`readlink -f .`
 PATH_SOURCE=`readlink -f src`
 
 
+# configure git to push changes
+echo "[INFO] Configure git to commit and push changes."
+
+git config --global user.email $HTTPCTRL_EMAIL
+git config --global user.name $HTTPCTRL_USERNAME
+
+
 # increment release
 echo "[INFO] Fetch and increment."
 
