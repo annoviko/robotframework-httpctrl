@@ -27,7 +27,7 @@ if [ -z "$REQUESTED_VERSION" ]
         micro=$((micro + 1))
     else
         echo "[ERROR]  Impossible to extract version to make release."
-        return -1
+        exit -1
     fi
     
     echo "$major.$minor.$micro" > VERSION
@@ -46,13 +46,13 @@ echo "[INFO] Update version file in the repository."
 git commit . -m "[ci][release] Update library version."
 if [ $? -ne 0 ]; then
     echo "[ERROR] Impossible to release the library to PyPi (reason: commit new version to the repository failed)."
-    return -1
+    exit -1
 fi
 
 git push https://$HTTPCTRL_USERNAME:$HTTPCTRL_PASSWORD@github.com/annoviko/robotframework-httpctrl.git --all
 if [ $? -ne 0 ]; then
     echo "[ERROR] Impossible to release the library to PyPi (reason: pushing new version to the repository failed)."
-    return -1
+    exit -1
 fi
 
 
@@ -67,7 +67,7 @@ python3 setup.py sdist
 twine upload dist/* -r testpypi
 if [ $? -ne 0 ]; then
     echo "[ERROR] Impossible to release the library to PyPi (reason: uploading to pypi failed)."
-    return -1
+    exit -1
 fi
 
 
@@ -101,12 +101,12 @@ cd $PATH_REPO_GH_PAGES
 git commit . -m "[ci][release] Upload documentation."
 if [ $? -ne 0 ]; then
     echo "[ERROR] Impossible to release the documentation (reason: commit new documentation failed)."
-    return -1
+    exit -1
 fi
 
 git push https://$HTTPCTRL_USERNAME:$HTTPCTRL_PASSWORD@github.com/annoviko/robotframework-httpctrl.git --all
 
 if [ $? -ne 0 ]; then
     echo "[ERROR] Impossible to release the documentation (reason: pushing new documentation failed)."
-    return -1
+    exit -1
 fi
