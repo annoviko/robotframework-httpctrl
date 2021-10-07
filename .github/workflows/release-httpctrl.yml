@@ -25,7 +25,7 @@ jobs:
 
     - name: Run multi-line script
       env:
-        REQUESTED_VERSION: ${{ inputs.requested_version }}
+        REQUESTED_VERSION: ${{ github.event.inputs.requested_version }}
         HTTPCTRL_USERNAME: ${{ secrets.HTTPCTRL_USERNAME }}
         HTTPCTRL_PASSWORD: ${{ secrets.HTTPCTRL_PASSWORD }}
         HTTPCTRL_EMAIL: ${{ secrets.HTTPCTRL_EMAIL }}

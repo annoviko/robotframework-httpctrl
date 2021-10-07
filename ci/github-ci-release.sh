@@ -14,6 +14,7 @@ git config --global user.name $HTTPCTRL_USERNAME
 echo "[INFO] Assign new version to the library."
 
 if [ -z "$REQUESTED_VERSION" ]
+    # generate new version by increment
     echo "[INFO] Read current version of the library and increment it."
 
     version=`cat VERSION`
@@ -26,13 +27,24 @@ if [ -z "$REQUESTED_VERSION" ]
 
         micro=$((micro + 1))
     else
-        echo "[ERROR]  Impossible to extract version to make release."
+        echo "[ERROR] Impossible to extract version to make release."
         exit -1
     fi
     
     echo "$major.$minor.$micro" > VERSION
 then
+    # use user-provided version of the library
     echo "[INFO] Use user-provided version of the library '$REQUESTED_VERSION'."
+    
+    pattern="([0-9]+).([0-9]+).([0-9]+)"
+    
+    if [[ $REQUESTED_VERSION =~ $pattern ]]
+    then
+        echo "[INFO] Version has correct format."
+    else
+        echo "[ERROR] Incorrect format of the versio."
+        exit -1
+    fi
 
     echo $REQUESTED_VERSION > VERSION
 fi
