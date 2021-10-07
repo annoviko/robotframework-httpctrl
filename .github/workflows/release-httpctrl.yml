@@ -19,8 +19,3 @@ jobs:
     - name: Run multi-line script
       shell: bash
       run: ci/github-ci-release.sh
-      with:
-        HTTPCTRL_USERNAME: ${{ secrets.HTTPCTRL_USERNAME }}
-        HTTPCTRL_PASSWORD: ${{ secrets.HTTPCTRL_PASSWORD }}
-        TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
-        TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
