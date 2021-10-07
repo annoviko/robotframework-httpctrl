@@ -6,11 +6,11 @@ HttpCtrl library for Robot Framework
 **RobotFramework-HttpCtrl** is a library for Robot Framework that provides HTTP/HTTPS client and HTTP server (IPv4 and IPv6) services
 to make REST API testing easy.
 
-**Version**: 0.1.10
+**Version**: .. include:: version
 
 **Author**: Andrei Novikov
 
-**License**: GNU General Public License
+**License**: The 3-Clause BSD License
 
 **Documentation**: https://annoviko.github.io/robotframework-httpctrl/
 

@@ -35,10 +35,19 @@ def load_readme():
     return "robotframework-httpctrl is a library for Robot Framework that provides HTTP/HTTPS client and HTTP server services."
 
 
+def load_version():
+    version_file = 'version'
+    if os.path.isfile(readme_file):
+        with open(readme_file) as file_descr:
+            return file_descr.read()
+    
+    return 'unknown'
+
+
 setup(
     name='robotframework-httpctrl',
     packages=['HttpCtrl', 'HttpCtrl.utils'],
-    version='0.1.10',
+    version=load_version(),
     description='robotframework-httpctrl is a library for Robot Framework that provides HTTP/HTTPS client and HTTP server services',
     platforms='any',
     long_description=load_readme(),
