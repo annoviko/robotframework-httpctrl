@@ -26,7 +26,7 @@ echo "$major.$minor.$micro" > VERSION
 # push version change to the repository
 echo "[INFO] Update version file in the repository."
 
-commit_message="[ci][release] Update version to $major.$minor.$micro."
+commit_message="\"[ci][release] Update version to $major.$minor.$micro.\""
 git commit . -m $commit_message
 git push https://$HTTPCTRL_USERNAME:$HTTPCTRL_PASSWORD@github.com/annoviko/robotframework-httpctrl.git --all
 
@@ -81,7 +81,7 @@ echo "[INFO] Upload the documentation."
 
 cd $PATH_REPO_GH_PAGES
 
-commit_message="[ci][release] Release documentation for $major.$minor.$micro."
+commit_message="\"[ci][release] Release documentation for $major.$minor.$micro.\""
 git commit . -m $commit_message
 git push https://$HTTPCTRL_USERNAME:$HTTPCTRL_PASSWORD@github.com/annoviko/robotframework-httpctrl.git --all
 
