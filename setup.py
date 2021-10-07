@@ -37,8 +37,8 @@ def load_readme():
 
 def load_version():
     version_file = 'VERSION'
-    if os.path.isfile(readme_file):
-        with open(readme_file) as file_descr:
+    if os.path.isfile(version_file):
+        with open(version_file) as file_descr:
             return file_descr.read()
     
     return 'unknown'

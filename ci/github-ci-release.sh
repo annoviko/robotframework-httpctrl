@@ -5,7 +5,7 @@ PATH_SOURCE=`readlink -f src`
 
 # packages to generate documentation
 echo "Install packages for release."
-pip3 install docutils pygments twine
+pip3 install robotframework docutils pygments twine
 
 # Release to PyPi
 python3 setup.py sdist
