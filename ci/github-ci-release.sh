@@ -10,32 +10,46 @@ git config --global user.email $HTTPCTRL_EMAIL
 git config --global user.name $HTTPCTRL_USERNAME
 
 
-# increment release
-echo "[INFO] Fetch and increment."
+# assign new version to the library
+echo "[INFO] Assign new version to the library."
 
-version=`cat VERSION`
-pattern="([0-9]+).([0-9]+).([0-9]+)"
-if [[ $version =~ $pattern ]]
+if [ -z "$REQUESTED_VERSION" ]
+    echo "[INFO] Read current version of the library and increment it."
+
+    version=`cat VERSION`
+    pattern="([0-9]+).([0-9]+).([0-9]+)"
+    if [[ $version =~ $pattern ]]
+    then
+        major="${BASH_REMATCH[1]}"
+        minor="${BASH_REMATCH[2]}"
+        micro="${BASH_REMATCH[3]}"
+
+        micro=$((micro + 1))
+    else
+        echo "[ERROR]  Impossible to extract version to make release."
+        return -1
+    fi
+    
+    echo "$major.$minor.$micro" > VERSION
 then
-    major="${BASH_REMATCH[1]}"
-    minor="${BASH_REMATCH[2]}"
-    micro="${BASH_REMATCH[3]}"
+    echo "[INFO] Use user-provided version of the library '$REQUESTED_VERSION'."
 
-    micro=$((micro + 1))
-else
-    echo "[ERROR]  Impossible to extract version to make release."
-    return -1
+    echo $REQUESTED_VERSION > VERSION
 fi
 
-echo "$major.$minor.$micro" > VERSION
+version=`cat VERSION`
 
 
 # push version change to the repository
 echo "[INFO] Update version file in the repository."
 
 git commit . -m "[ci][release] Update library version."
-git push https://$HTTPCTRL_USERNAME:$HTTPCTRL_PASSWORD@github.com/annoviko/robotframework-httpctrl.git --all
+if [ $? -ne 0 ]; then
+    echo "[ERROR] Impossible to release the library to PyPi (reason: commit new version to the repository failed)."
+    return -1
+fi
 
+git push https://$HTTPCTRL_USERNAME:$HTTPCTRL_PASSWORD@github.com/annoviko/robotframework-httpctrl.git --all
 if [ $? -ne 0 ]; then
     echo "[ERROR] Impossible to release the library to PyPi (reason: pushing new version to the repository failed)."
     return -1
@@ -72,9 +86,6 @@ PATH_REPO_GH_PAGES=`readlink -f .`
 # Generate documentation
 echo "[INFO] Generate documentation."
 
-cd $PATH_REPO_CURRENT
-version=`cat VERSION`
-
 cd $PATH_SOURCE
 
 python3 -m robot.libdoc -v $version -F reST HttpCtrl.Client $PATH_REPO_GH_PAGES/client.html
@@ -88,6 +99,11 @@ echo "[INFO] Upload the documentation."
 cd $PATH_REPO_GH_PAGES
 
 git commit . -m "[ci][release] Upload documentation."
+if [ $? -ne 0 ]; then
+    echo "[ERROR] Impossible to release the documentation (reason: commit new documentation failed)."
+    return -1
+fi
+
 git push https://$HTTPCTRL_USERNAME:$HTTPCTRL_PASSWORD@github.com/annoviko/robotframework-httpctrl.git --all
 
 if [ $? -ne 0 ]; then

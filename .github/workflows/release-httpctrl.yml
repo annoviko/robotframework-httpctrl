@@ -1,6 +1,12 @@
 name: release httpctrl
 
 on: [workflow_dispatch]
+    inputs:
+        requested_version:
+            description: 'Specific version that is going to be used.'
+            default: ''
+            required: false
+            type: string
 
 jobs:
   build:
@@ -18,6 +24,7 @@ jobs:
 
     - name: Run multi-line script
       env:
+        REQUESTED_VERSION: ${{ inputs.requested_version }}
         HTTPCTRL_USERNAME: ${{ secrets.HTTPCTRL_USERNAME }}
         HTTPCTRL_PASSWORD: ${{ secrets.HTTPCTRL_PASSWORD }}
         HTTPCTRL_EMAIL: ${{ secrets.HTTPCTRL_EMAIL }}
