@@ -14,6 +14,7 @@ git config --global user.name $HTTPCTRL_USERNAME
 echo "[INFO] Assign new version to the library (user provided value '$REQUESTED_VERSION')."
 
 if [ -z "$REQUESTED_VERSION" ]
+then
     # generate new version by increment
     echo "[INFO] Read current version of the library and increment it."
 
