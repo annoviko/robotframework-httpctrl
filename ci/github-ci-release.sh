@@ -77,7 +77,7 @@ pip3 install robotframework docutils pygments twine
 
 # Release to PyPi
 python3 setup.py sdist
-twine upload dist/* -r testpypi
+twine upload dist/* -r pypi
 if [ $? -ne 0 ]; then
     echo "[ERROR] Impossible to release the library to PyPi (reason: uploading to pypi failed)."
     exit -1
