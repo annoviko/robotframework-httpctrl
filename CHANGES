@@ -7,7 +7,7 @@ CHANGE NOTES FOR 0.2.0 (RELEASED: Oct 8, 2021)
 GENERAL CHANGES
 
 - Change license to The 3-Clause BSD License.
-  no-ref
+  https://github.com/annoviko/robotframework-httpctrl/issues/26
 
 - Feature to release the library automatically.
   https://github.com/annoviko/robotframework-httpctrl/issues/14
