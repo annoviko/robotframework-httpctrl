@@ -1,6 +1,18 @@
 ------------------------------------------------------------------------
 
-CHANGE NOTES FOR 0.1.10 (RELEASED: Oct 10, 2021)
+CHANGE NOTES FOR 0.2.0 (RELEASED: Oct 8, 2021)
+
+------------------------------------------------------------------------
+
+GENERAL CHANGES
+
+- Feature to release the library automatically.
+  https://github.com/annoviko/robotframework-httpctrl/issues/14
+
+
+------------------------------------------------------------------------
+
+CHANGE NOTES FOR 0.1.10 (RELEASED: Oct 7, 2021)
 
 ------------------------------------------------------------------------
 
