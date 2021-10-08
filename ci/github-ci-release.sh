@@ -111,6 +111,9 @@ echo "[INFO] Upload the documentation."
 
 cd $PATH_REPO_GH_PAGES
 
+echo "[INFO] Update version on the main page."
+sed -i -e "s/<b>Version:<\/b> [0-9]*\.[0-9]*\.[0-9]*/<b>Version:<\/b> $version/g" index.html
+
 git commit . -m "[ci][release] Upload documentation."
 if [ $? -ne 0 ]; then
     echo "[ERROR] Impossible to release the documentation (reason: commit new documentation failed)."
