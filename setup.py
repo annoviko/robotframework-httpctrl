@@ -45,7 +45,7 @@ setup(
         'Documentation': 'https://annoviko.github.io/robotframework-httpctrl/',
         'Bug Tracker': 'https://github.com/annoviko/robotframework-httpctrl/issues'
     },
-    license='GNU Public License',
+    license='BSD-3-Clause',
     classifiers=[
         'Development Status :: 5 - Production/Stable',
         'Intended Audience :: Developers',
