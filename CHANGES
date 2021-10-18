@@ -1,5 +1,17 @@
 ------------------------------------------------------------------------
 
+CHANGE NOTES FOR 0.2.2 (RELEASED: Oct 18, 2021)
+
+------------------------------------------------------------------------
+
+GENERAL CHANGES
+
+- Change license to The 3-Clause BSD License.
+  See: https://github.com/annoviko/robotframework-httpctrl/issues/27
+
+
+------------------------------------------------------------------------
+
 CHANGE NOTES FOR 0.2.1 (RELEASED: Oct 8, 2021)
 
 ------------------------------------------------------------------------
@@ -7,7 +19,7 @@ CHANGE NOTES FOR 0.2.1 (RELEASED: Oct 8, 2021)
 GENERAL CHANGES
 
 - Change license to The 3-Clause BSD License.
-  https://github.com/annoviko/robotframework-httpctrl/issues/26
+  See: https://github.com/annoviko/robotframework-httpctrl/issues/26
 
 
 ------------------------------------------------------------------------
@@ -19,10 +31,10 @@ CHANGE NOTES FOR 0.2.0 (RELEASED: Oct 8, 2021)
 GENERAL CHANGES
 
 - Change license to The 3-Clause BSD License.
-  https://github.com/annoviko/robotframework-httpctrl/issues/26
+  See: https://github.com/annoviko/robotframework-httpctrl/issues/26
 
 - Feature to release the library automatically.
-  https://github.com/annoviko/robotframework-httpctrl/issues/14
+  See: https://github.com/annoviko/robotframework-httpctrl/issues/14
 
 
 ------------------------------------------------------------------------
@@ -34,7 +46,7 @@ CHANGE NOTES FOR 0.1.10 (RELEASED: Oct 7, 2021)
 GENERAL CHANGES:
 
 - Fixed bug where body was not provided for HEAD, OPTION, DELETE and GET methods (HttpCtrl.Server).
-  https://github.com/annoviko/robotframework-httpctrl/issues/24
+  See: https://github.com/annoviko/robotframework-httpctrl/issues/24
 
 
 ------------------------------------------------------------------------
@@ -46,12 +58,12 @@ CHANGE NOTES FOR 0.1.9 (RELEASED: Sep 29, 2021)
 GENERAL CHANGES:
 
 - Support bytes body type for `Reply By` (HttpCtrl.Server).
-  https://github.com/annoviko/robotframework-httpctrl/issues/17
+  See: https://github.com/annoviko/robotframework-httpctrl/issues/17
 
 CORRECTED MAJOR BUGS:
 
 - Fixed bug where response server body was used as a response reason (HttpCtrl.Server).
-  https://github.com/annoviko/robotframework-httpctrl/issues/19
+  See: https://github.com/annoviko/robotframework-httpctrl/issues/19
 
 
 ------------------------------------------------------------------------
@@ -63,7 +75,7 @@ CHANGE NOTES FOR 0.1.8 (RELEASED: Sep 28, 2021)
 GENERAL CHANGES:
 
 - Option to bind client to the specific address only without port (HttpCtrl.Client).
-  https://github.com/annoviko/robotframework-httpctrl/issues/21
+  See: https://github.com/annoviko/robotframework-httpctrl/issues/21
 
 
 ------------------------------------------------------------------------
@@ -75,10 +87,10 @@ CHANGE NOTES FOR 0.1.7 (RELEASED: Sep 27, 2021)
 GENERAL CHANGES:
 
 - Option to bind client to the specific address and port (HttpCtrl.Client).
-  https://github.com/annoviko/robotframework-httpctrl/issues/21
+  See: https://github.com/annoviko/robotframework-httpctrl/issues/21
 
 - Supported IPv6 address (HttpCtrl.Client, HttpCtrl.Server).
-  https://github.com/annoviko/robotframework-httpctrl/issues/15
+  See: https://github.com/annoviko/robotframework-httpctrl/issues/15
 
 
 ------------------------------------------------------------------------
