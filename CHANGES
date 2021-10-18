@@ -6,7 +6,7 @@ CHANGE NOTES FOR 0.2.2 (RELEASED: Oct 18, 2021)
 
 GENERAL CHANGES
 
-- Change license to The 3-Clause BSD License.
+- Fixes bug with pypi installer 0.2.1.
   See: https://github.com/annoviko/robotframework-httpctrl/issues/27
 
 
