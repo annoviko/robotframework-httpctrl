@@ -1,5 +1,32 @@
 ------------------------------------------------------------------------
 
+CHANGE NOTES FOR 0.2.5 (RELEASED: Dec 24, 2021)
+
+------------------------------------------------------------------------
+
+GENERAL CHANGES
+
+- Update meta-information (CHANGE file).
+  See: no reference
+
+
+------------------------------------------------------------------------
+
+CHANGE NOTES FOR 0.2.4 (RELEASED: Dec 24, 2021)
+
+------------------------------------------------------------------------
+
+GENERAL CHANGES
+
+- Introduced new keyword `Set Stub Reply` to create server stub functions.
+  See: https://github.com/annoviko/robotframework-httpctrl/issues/30
+
+- Introduced new keyword `Get Stub Count` to get server stub statistic.
+  See: https://github.com/annoviko/robotframework-httpctrl/issues/30
+
+
+------------------------------------------------------------------------
+
 CHANGE NOTES FOR 0.2.2 (RELEASED: Oct 18, 2021)
 
 ------------------------------------------------------------------------
