@@ -15,6 +15,7 @@ from HttpCtrl.internal_messages import TerminationRequest, IgnoreRequest
 from HttpCtrl.request import Request
 from HttpCtrl.request_storage import RequestStorage
 from HttpCtrl.response_storage import ResponseStorage
+from HttpCtrl.http_stub import HttpStubContainer, HttpStubCriteria
 
 
 class HttpHandler(SimpleHTTPRequestHandler):
@@ -79,12 +80,17 @@ class HttpHandler(SimpleHTTPRequestHandler):
 
         logger.info("'%s' request is received from '%s:%s'." % (method, host, port))
 
-        request = Request(host, port, method, self.path, self.headers, body)
-        RequestStorage().push(request)
+        stub = HttpStubContainer().get(HttpStubCriteria(method=method, url=self.path))
+        if stub is not None:
+            response = stub.response
 
-        response = ResponseStorage().pop()
-        if isinstance(response, TerminationRequest) or isinstance(response, IgnoreRequest):
-            return
+        else:
+            request = Request(host, port, method, self.path, self.headers, body)
+            RequestStorage().push(request)
+
+            response = ResponseStorage().pop()
+            if isinstance(response, TerminationRequest) or isinstance(response, IgnoreRequest):
+                return
 
         try:
             self.__send_response(response)
@@ -100,8 +106,9 @@ class HttpHandler(SimpleHTTPRequestHandler):
         self.send_response(response.get_status())
 
         headers = response.get_headers()
-        for key, value in headers.items():
-            self.send_header(key, value)
+        if headers is not None:
+            for key, value in headers.items():
+                self.send_header(key, value)
 
         body = response.get_body()
         if body is not None:

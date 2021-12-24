@@ -43,10 +43,9 @@ class HttpServer:
 
 
     def start(self):
-        TCPServer.allow_reuse_address = True
-
         self.__handler = HttpHandler
         self.__server = self.__create_tcp_server()
+        self.__server.allow_reuse_address = True
 
         try:
             with self.__cv_run:
@@ -88,6 +87,7 @@ class HttpServer:
 
     def __create_ipv6_tcp_server(self):
         try:
+            TCPServerIPv6.allow_reuse_address = True
             ipaddress.IPv6Address(self.__host)  # if throws exception then address is not IPv6
 
             tcp_server = TCPServerIPv6((self.__host, self.__port), self.__handler)
@@ -100,6 +100,7 @@ class HttpServer:
 
 
     def __create_ipv4_tcp_server(self):
+        TCPServer.allow_reuse_address = True
         tcp_server = TCPServer((self.__host, self.__port), self.__handler)
 
         logger.info("IPv4 TCP server '%s:%s' is created for HTTP." % (self.__host, str(self.__port)))

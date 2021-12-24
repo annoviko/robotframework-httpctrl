@@ -17,6 +17,7 @@ from robot.api import logger
 
 from HttpCtrl.internal_messages import IgnoreRequest
 from HttpCtrl.http_server import HttpServer
+from HttpCtrl.http_stub import HttpStubContainer, HttpStubCriteria
 from HttpCtrl.request_storage import RequestStorage
 from HttpCtrl.response_storage import ResponseStorage
 from HttpCtrl.response import Response
@@ -711,6 +712,48 @@ class Server:
             Initialize Client   0000:0000:0000:0000:0000:0000:0000:0001   8000
             Start Server        0000:0000:0000:0000:0000:0000:0000:0001   8000
 
+    There is an example where server stubs are using. Sever stub is a pre-defined function that is used by the server to
+    reply automatically to a request that satisfies a user specific HTTP criteria.
+
+    .. code:: robotframework
+
+        *** Settings ***
+
+        Library         HttpCtrl.Client
+        Library         HttpCtrl.Server
+
+        Test Setup       Initialize HTTP Client And Server
+        Test Teardown    Terminate HTTP Server
+
+        *** Test Cases ***
+
+        Set Signle Stub And Send Request
+            # Set server stub to reply automatically to POST /api/v1/post
+            Set Stub Reply   POST   /api/v1/post   200   Post Message
+
+            # Send HTTP request to the server
+            Send HTTP Request   POST   /api/v1/post
+
+            # Check that the client receives pre-defined values by the stub
+            ${status}=     Get Response Status
+            ${body}=       Get Response Body
+
+            Should Be Equal   ${status}   ${200}
+            Should Be Equal   ${body}     Post Message
+
+            # Check that the server receives a single request
+            ${count}=      Get Stub Count   POST   /api/v1/post
+            Should Be Equal   ${count}   ${1}
+
+        *** Keywords ***
+
+        Initialize HTTP Client And Server
+            Initialize Client   127.0.0.1   8000
+            Start Server        127.0.0.1   8000
+
+        Terminate HTTP Server
+            Stop Server
+
     """
 
     def __init__(self):
@@ -719,6 +762,10 @@ class Server:
 
         self.__server = None
         self.__thread = None
+
+
+    def __del__(self):
+        self.stop_server()
 
 
     def start_server(self, host, port):
@@ -811,6 +858,7 @@ class Server:
 
             ResponseStorage().clear()
             RequestStorage().clear()
+            HttpStubContainer().clear()
 
             self.__server = None
             self.__thread = None
@@ -920,6 +968,89 @@ class Server:
         self.wait_for_request()
         ResponseStorage().push(IgnoreRequest())
         logger.info("Request is ignored by closing connection.")
+
+
+    def set_stub_reply(self, method, url, status, body=None):
+        """
+        
+        Sets stub reply for HTTP(S) server. This function sets a server stub to reply automatically by a specific 
+        response to a specific request. When the stub is used to reply, then corresponding statistic is incremented
+        (see \`Get Stub Count\`).
+
+        `method` [in] (string): Request method that is used to handle by server stub (GET, POST, DELETE, etc., see: RFC 7231, RFC 5789).
+
+        `url` [in] (string): Path to the resource that is used by server stub, for example, in case address www.httpbin.org/ip - '/ip' is an path.
+
+        `status` [in] (int|string): HTTP status code for response that is used by server stub.
+
+        `body` [in] (string): Response body that is used by server stub.
+
+        Example how to set stub to reply automatically to request `POST` `/api/v1/request` by status `200`.
+
+        +----------------+------+-----------------+-----+
+        | Set Stub Reply | POST | /api/v1/request | 200 |
+        +----------------+------+-----------------+-----+
+
+        .. code:: text
+        
+            Set Stub Reply   POST   /api/v1/request   200
+        
+        Example how to set stub to reply automatically using a specific body.
+
+        +----------------+------+-----------------+-----+--------------------------+
+        | Set Stub Reply | POST | /api/v1/request | 202 | Request has been handled |
+        +----------------+------+-----------------+-----+--------------------------+
+
+        .. code:: text
+
+            Set Stub Reply   POST   /api/v1/request   200   Request has been handled
+
+        """
+        if self.__server is None:
+            message_error = "Impossible to set server stub reply (reason: 'server is not created')."
+            raise AssertionError(message_error)
+        
+        criteria = HttpStubCriteria(method=method, url=url)
+        response = Response(int(status), None, body, None)
+        HttpStubContainer().add(criteria, response)
+
+
+    def get_stub_count(self, method, url):
+        """
+        
+        Returns server stub statistic that defines how many time the stub was used by server to reply.
+        
+        `method` [in] (string): Request method that is used to handle by server stub (GET, POST, DELETE, etc., see: RFC 7231, RFC 5789).
+
+        `url` [in] (string): Path to the resource that is used by server stub, for example, in case address www.httpbin.org/ip - '/ip' is an path.
+
+        Example how to get server stub statistic for request with `POST` method and URL `/api/v2/request`.
+
+        +----------------+------+-----------------+
+        | Get Stub Count | POST | /api/v2/request |
+        +----------------+------+-----------------+
+
+        .. code:: text
+
+            Get Stub Count   POST   /api/v2/request
+
+        Example how to get server stub statistic for request with `GET` method and URL `/get`
+
+        +----------------+------+-----+
+        | Get Stub Count | GET | /get |
+        +----------------+------+-----+
+
+        .. code:: text
+
+            Get Stub Count   GET   /get
+
+        """
+        if self.__server is None:
+            message_error = "Impossible to get server stub statistic (reason: 'server is not created')."
+            raise AssertionError(message_error)
+
+        criteria = HttpStubCriteria(method=method, url=url)
+        return HttpStubContainer().count(criteria)
 
 
     def get_request_source_address(self):
@@ -1069,6 +1200,7 @@ class Server:
         \`Reply By\` is used.
 
         `key` [in] (string): HTTP header name.
+
         `value` [in] (string): HTTP header value.
 
         Example how to set header for HTTP response:
@@ -1104,6 +1236,7 @@ class Server:
         Send response using specified HTTP code and body. This function should be called after \`Wait For Request\`.
 
         `status` [in] (string): HTTP status code for response.
+
         `body` [in] (string|bytes): Body that should contain response.
 
         Example how to reply by 204 (No Content) to incoming request:
