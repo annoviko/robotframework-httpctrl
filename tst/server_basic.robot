@@ -129,3 +129,93 @@ Reply by Bytes Body
     ${response body bytes}=   Encode String To Bytes   ${response body}   UTF-8
 
     Should Be Equal   ${response body bytes}   ${body bytes}
+
+
+Set Signle Stub And One Call
+    [Teardown]   Stop Server
+    Initialize Client   127.0.0.1   8000
+    Start Server        127.0.0.1   8000
+
+    Set Stub Reply   POST   /api/v1/post   200   Post Message
+
+    Check Stub Statistic          POST   /api/v1/post   ${0}
+    Send Request and Check Stub   POST   /api/v1/post   ${200}   Post Message   ${1}
+
+
+Set Single Stub And Four Calls
+    [Teardown]   Stop Server
+    Initialize Client   127.0.0.1   8000
+    Start Server        127.0.0.1   8000
+
+    Set Stub Reply   POST   /api/v1/post   200   Post Message
+
+    Check Stub Statistic          POST   /api/v1/post   ${0}
+
+    FOR    ${index}    IN RANGE    1    5
+        Send Request and Check Stub   POST   /api/v1/post   ${200}   Post Message   ${index}
+    END
+
+
+Set Two Stubs And Five Calls Consequentially
+    [Teardown]   Stop Server
+    Initialize Client   127.0.0.1   8000
+    Start Server        127.0.0.1   8000
+
+    Set Stub Reply   POST   /api/v1/post   202   Post Message
+    Set Stub Reply   GET    /api/v1/get    201   Get Message
+
+    Check Stub Statistic          POST   /api/v1/post   ${0}
+    Check Stub Statistic          GET    /api/v1/get    ${0}
+
+    FOR    ${index}    IN RANGE    1    6
+        Send Request and Check Stub   POST   /api/v1/post   ${202}   Post Message   ${index}
+        Check Stub Statistic          GET    /api/v1/get    ${0}
+    END
+
+    FOR    ${index}    IN RANGE    1    6
+        Check Stub Statistic          POST   /api/v1/post   ${5}
+        Send Request and Check Stub   GET    /api/v1/get    ${201}   Get Message    ${index}
+    END
+
+
+Set Two Stubs And Seven Calls Simultaneously
+    [Teardown]   Stop Server
+    Initialize Client   127.0.0.1   8000
+    Start Server        127.0.0.1   8000
+
+    Set Stub Reply   POST   /api/v1/post   202   Post Message
+    Set Stub Reply   GET    /api/v1/get    201   Get Message
+
+    Check Stub Statistic          POST   /api/v1/post   ${0}
+    Check Stub Statistic          GET    /api/v1/get    ${0}
+
+    FOR    ${index}    IN RANGE    1    8
+        Send Request and Check Stub   POST   /api/v1/post   ${202}   Post Message   ${index}
+        Send Request and Check Stub   GET    /api/v1/get    ${201}   Get Message    ${index}
+    END
+
+
+*** Keywords ***
+
+Send Request and Check Stub
+    [Arguments]   ${stub method}   ${stub url}   ${expected status}   ${expected body}   ${expected count}
+
+    Send HTTP Request   ${stub method}   ${stub url}
+
+    ${status}=     Get Response Status
+    ${body}=       Get Response Body
+
+    Should Be Equal   ${status}   ${expected status}
+    Should Be Equal   ${body}     ${expected body}
+
+    ${count}=      Get Stub Count   ${stub method}   ${stub url}
+
+    Should Be Equal   ${count}   ${expected count}
+
+
+Check Stub Statistic
+    [Arguments]   ${stub method}   ${stub url}   ${expected count}
+
+    ${count}=      Get Stub Count   ${stub method}   ${stub url}
+
+    Should Be Equal   ${count}   ${expected count}
