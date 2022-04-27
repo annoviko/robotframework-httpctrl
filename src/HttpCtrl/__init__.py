@@ -191,6 +191,8 @@ class Client:
         endpoint = "%s:%s" % (self.__server_host, str(self.__server_port))
         source_address = self.__get_source_address()
 
+        logger.info("Connect to the server (type: '%s', endpoint: '%s')" % (connection_type, endpoint))
+
         if connection_type == 'http':
             connection = http.client.HTTPConnection(endpoint, source_address=source_address)
         elif connection_type == 'https':
@@ -199,11 +201,15 @@ class Client:
             raise AssertionError("Internal error of the client, please report to "
                                  "'https://github.com/annoviko/robotframework-httpctrl/issues'.")
 
-        connection.request(method, url, body, self.__request_headers)
+        logger.info("Send request to the server (method: '%s', url: '%s')." % (method, url))
+        try:
+            connection.request(method, url, body, self.__request_headers)
+        except Exception as exception:
+            logger.info("Impossible to send request to the server (reason: '%s')." % str(exception))
 
         self.__request_headers = {}
 
-        logger.info("Request (type: '%s', method '%s') is sent to %s." % (connection_type, method, endpoint))
+        logger.info("Request (type: '%s', method '%s') was sent to '%s'." % (connection_type, method, endpoint))
         logger.info("%s %s" % (method, url))
         if body is not None:
             logger.info("%s" % body)

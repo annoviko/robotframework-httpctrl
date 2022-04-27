@@ -1,5 +1,17 @@
 ------------------------------------------------------------------------
 
+CHANGE NOTES FOR 0.2.6 (RELEASED: Apr 26, 2022)
+
+------------------------------------------------------------------------
+
+GENERAL CHANGES
+
+- Fixed bug with Flask based server that reply by 404.
+  See: https://github.com/annoviko/robotframework-httpctrl/issues/33
+
+
+------------------------------------------------------------------------
+
 CHANGE NOTES FOR 0.2.5 (RELEASED: Dec 24, 2021)
 
 ------------------------------------------------------------------------
