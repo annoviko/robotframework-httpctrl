@@ -34,6 +34,7 @@ fi
 # generate documentation
 echo "Generate documentation for HttpCtrl."
 
+cd ..
 version=`cat VERSION`
 
 cd ../src || exit $EXIT_CODE_INCORRECT_PATH
