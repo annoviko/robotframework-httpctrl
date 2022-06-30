@@ -3,7 +3,7 @@
 HttpCtrl library provides HTTP/HTTPS client and server API to Robot Framework to make REST API testing easy.
 
 Authors: Andrei Novikov
-Date: 2018-2021
+Date: 2018-2022
 Copyright: The 3-Clause BSD License
 
 """
@@ -63,7 +63,7 @@ setup(
     author='Andrei Novikov',
     author_email='spb.andr@yandex.ru',
 
-    python_requires='>=3.4',
+    python_requires='>=3.6',
     install_requires=['robotframework'],
 
     package_dir={'': 'src'},

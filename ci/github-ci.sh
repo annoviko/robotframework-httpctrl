@@ -33,7 +33,11 @@ fi
 
 # generate documentation
 echo "Generate documentation for HttpCtrl."
+
+version=`cat VERSION`
+
 cd ../src || exit $EXIT_CODE_INCORRECT_PATH
-python3 -m robot.libdoc -v 0.1.10 -F reST HttpCtrl.Client client.html
-python3 -m robot.libdoc -v 0.1.10 -F reST HttpCtrl.Server server.html
-python3 -m robot.libdoc -v 0.1.10 -F reST HttpCtrl.Json json.html
+python3 -m robot.libdoc -v $version -F reST HttpCtrl.Client client.html
+python3 -m robot.libdoc -v $version -F reST HttpCtrl.Server server.html
+python3 -m robot.libdoc -v $version -F reST HttpCtrl.Json json.html
+python3 -m robot.libdoc -v $version -F reST HttpCtrl.Logging logging.html

@@ -104,6 +104,7 @@ cd $PATH_SOURCE
 python3 -m robot.libdoc -v $version -F reST HttpCtrl.Client $PATH_REPO_GH_PAGES/client.html
 python3 -m robot.libdoc -v $version -F reST HttpCtrl.Server $PATH_REPO_GH_PAGES/server.html
 python3 -m robot.libdoc -v $version -F reST HttpCtrl.Json $PATH_REPO_GH_PAGES/json.html
+python3 -m robot.libdoc -v $version -F reST HttpCtrl.Logging $PATH_REPO_GH_PAGES/logging.html
 
 
 # Commit and push documentation changes
