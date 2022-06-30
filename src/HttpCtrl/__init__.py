@@ -3,7 +3,7 @@
 HttpCtrl library provides HTTP/HTTPS client and server API to Robot Framework to make REST API testing easy.
 
 Authors: Andrei Novikov
-Date: 2018-2021
+Date: 2018-2022
 Copyright: The 3-Clause BSD License
 
 """
@@ -14,6 +14,8 @@ import json
 import threading
 
 from robot.api import logger
+
+from HttpCtrl.utils.logger import LoggerAssistant
 
 from HttpCtrl.internal_messages import IgnoreRequest
 from HttpCtrl.http_server import HttpServer
@@ -26,7 +28,7 @@ from HttpCtrl.response import Response
 class Client:
     """
 
-    HTTP/HTTPS Client Library that provides comprehensive interface to Robot Framework to control HTTP/HTTPS client.
+    HTTP/HTTPS Client library that provides comprehensive interface to Robot Framework to control HTTP/HTTPS client.
 
     See other HttpCtrl libraries:
 
@@ -34,8 +36,11 @@ class Client:
 
     - HttpCtrl.Json_ - Json related API for testing where work with Json message is required.
 
+    - HttpCtrl.Logging_ - Logging related API to configure the logging system that is used by HttpCtrl library.
+
     .. _HttpCtrl.Server: server.html
     .. _HttpCtrl.Json: json.html
+    .. _HttpCtrl.Logging: logging.html
 
     Example how to send GET request to obtain origin IP address and check that response is not empty:
 
@@ -212,7 +217,8 @@ class Client:
         logger.info("Request (type: '%s', method '%s') was sent to '%s'." % (connection_type, method, endpoint))
         logger.info("%s %s" % (method, url))
         if body is not None:
-            logger.info("%s" % body)
+            body_to_log = LoggerAssistant.get_body(body)
+            logger.info("%s" % body_to_log)
 
         return connection
 
@@ -658,7 +664,7 @@ class Client:
 class Server:
     """
 
-    HTTP Server Library that provides comprehensive interface to Robot Framework to control HTTP server.
+    HTTP Server library that provides comprehensive interface to Robot Framework to control HTTP server.
 
     See other HttpCtrl libraries:
 
@@ -666,8 +672,11 @@ class Server:
 
     - HttpCtrl.Json_ - Json related API for testing where work with Json message is required.
 
+    - HttpCtrl.Logging_ - Logging related API to configure the logging system that is used by HttpCtrl library.
+
     .. _HttpCtrl.Client: client.html
     .. _HttpCtrl.Json: json.html
+    .. _HttpCtrl.Logging: logging.html
 
     Here is an example of receiving POST request. In this example HTTP client sends POST request to HTTP server. HTTP
     server receives it and checks incoming request for correctness.
@@ -1283,7 +1292,7 @@ class Server:
 class Json:
     """
 
-    Json Library provide comprehensive interface to Robot Framework to work with JSON structures that are actively
+    Json library provide comprehensive interface to Robot Framework to work with JSON structures that are actively
     used for Internet communication nowadays.
 
     See other HttpCtrl libraries:
@@ -1292,8 +1301,11 @@ class Json:
 
     - HttpCtrl.Server_ - HTTP Server API for testing where easy-controlled HTTP server is required.
 
+    - HttpCtrl.Logging_ - Logging related API to configure the logging system that is used by HttpCtrl library.
+
     .. _HttpCtrl.Client: client.html
     .. _HttpCtrl.Server: server.html
+    .. _HttpCtrl.Logging: logging.html
 
     Example where Json values are updated in a string and then read from it:
 
@@ -1457,3 +1469,57 @@ class Json:
                 current_element = current_element[key]
 
         return json.dumps(json_content)
+
+
+
+class Logging:
+    """
+
+    Logging library provide functionality to configure the logging system that is used by HttpCtrl library.
+
+    See other HttpCtrl libraries:
+
+    - HttpCtrl.Client_ - HTTP/HTTP Client API for testing where easy-controlled HTTP/HTTPS client is required.
+
+    - HttpCtrl.Server_ - HTTP Server API for testing where easy-controlled HTTP server is required.
+
+    - HttpCtrl.Json_ - Json related API for testing where work with Json message is required.
+
+    .. _HttpCtrl.Client: client.html
+    .. _HttpCtrl.Server: server.html
+    .. _HttpCtrl.Json: json.html
+
+    """
+
+    @staticmethod
+    def set_body_size_limit_to_log(body_size):
+        """
+
+        Set body (HTTP request/response) size that is allowed to log. By default the library logs `512` symbols of the body. If the
+        limit should be removed then `${None}` value can be provided to the function.
+
+        The logging body limit protects test logs to be too large if tests use big data for testing.
+
+        Example how to set the logging body limit to 1024 symbols:
+
+        +----------------------------+------+
+        | Set Body Size Limit To Log | 1024 |
+        +----------------------------+------+
+
+        .. code:: text
+
+            Set Body Size Limit To Log    1024
+
+        Example how to remove the logging body limit:
+
+        +----------------------------+---------+
+        | Set Body Size Limit To Log | ${None} |
+        +----------------------------+---------+
+
+        .. code:: text
+
+            Set Body Size Limit To Log    ${None}
+
+        """
+
+        LoggerAssistant.set_body_size(body_size)

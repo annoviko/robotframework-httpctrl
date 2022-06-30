@@ -36,9 +36,12 @@ Brief Overview of the Library Content
 
 - **HttpCtrl.Json** - provides API to work Json messages [`link json documentation`_].
 
+- **HttpCtrl.Logging** - provides API to configure the logging system that is used by `HttpCtrl` library [`link logging documentation`_].
+
 .. _link client documentation: https://annoviko.github.io/robotframework-httpctrl/client.html
 .. _link server documentation: https://annoviko.github.io/robotframework-httpctrl/server.html
 .. _link json documentation: https://annoviko.github.io/robotframework-httpctrl/json.html
+.. _link logging documentation: https://annoviko.github.io/robotframework-httpctrl/logging.html
 
 
 Examples

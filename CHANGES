@@ -1,5 +1,17 @@
 ------------------------------------------------------------------------
 
+CHANGE NOTES FOR 0.2.7 (RELEASED: Jun 30, 2022)
+
+------------------------------------------------------------------------
+
+GENERAL CHANGES
+
+- Introduce the limit for body size to log and corresponding library `HttpCtrl.Logging` to configure it.
+  See: https://github.com/annoviko/robotframework-httpctrl/issues/34
+
+
+------------------------------------------------------------------------
+
 CHANGE NOTES FOR 0.2.6 (RELEASED: Apr 26, 2022)
 
 ------------------------------------------------------------------------

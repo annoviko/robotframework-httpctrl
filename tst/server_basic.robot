@@ -2,6 +2,7 @@
 
 Library         DateTime
 Library         String
+Library         HttpCtrl.Logging
 Library         HttpCtrl.Client
 Library         HttpCtrl.Server
 
@@ -108,6 +109,54 @@ Response Body
 
     Should Be Equal   ${response status}    ${200}
     Should Be Equal   ${response reason}    OK
+
+
+Big Response Body
+    [Teardown]  Stop Server
+    Initialize Client   127.0.0.1   8000
+    Start Server        127.0.0.1   8000
+
+    ${body content}=   Set Variable   1234567890qwertyuiopasdfghjklzxcvbnm1234567890qwertyuiopasdfghjklzxcvbnm1234567890qwertyuiopasdfghjklzxcvbnm1234567890qwertyuiopasdfghjklzxcvbnm1234567890qwertyuiopasdfghjklzxcvbnm1234567890qwertyuiopasdfghjklzxcvbnm1234567890qwertyuiopasdfghjklzxcvbnm1234567890qwertyuiopasdfghjklzxcvbnm1234567890qwertyuiopasdfghjklzxcvbnm1234567890qwertyuiopasdfghjklzxcvbnm1234567890qwertyuiopasdfghjklzxcvbnm1234567890qwertyuiopasdfghjklzxcvbnm1234567890qwertyuiopasdfghjklzxcvbnm1234567890qwertyuiopasdfghjklzxcvbnm1234567890qwertyuiopasdfghjklzxcvbnm
+    ${connection}=   Send HTTP Request Async   POST   /post   ${body content}
+
+    Wait For Request
+
+    ${body}=     Get Request Body
+    Should Be Equal   ${body}     ${body content}
+
+    Reply By   200   ${body content}
+
+    ${response}=   Get Async Response   ${connection}   1
+    ${response status}=   Get Status From Response   ${response}
+    ${response body}=   Get Body From Response   ${response}
+
+    Should Be Equal   ${response status}    ${200}
+    Should Be Equal   ${response body}    ${body content}
+
+
+Big Response Body Without Logging Limit
+    [Teardown]  Stop Server
+    Initialize Client   127.0.0.1   8000
+    Start Server        127.0.0.1   8000
+
+    Set Body Size Limit to Log    ${None}
+
+    ${body content}=   Set Variable   1234567890qwertyuiopasdfghjklzxcvbnm1234567890qwertyuiopasdfghjklzxcvbnm1234567890qwertyuiopasdfghjklzxcvbnm1234567890qwertyuiopasdfghjklzxcvbnm1234567890qwertyuiopasdfghjklzxcvbnm1234567890qwertyuiopasdfghjklzxcvbnm1234567890qwertyuiopasdfghjklzxcvbnm1234567890qwertyuiopasdfghjklzxcvbnm1234567890qwertyuiopasdfghjklzxcvbnm1234567890qwertyuiopasdfghjklzxcvbnm1234567890qwertyuiopasdfghjklzxcvbnm1234567890qwertyuiopasdfghjklzxcvbnm1234567890qwertyuiopasdfghjklzxcvbnm1234567890qwertyuiopasdfghjklzxcvbnm1234567890qwertyuiopasdfghjklzxcvbnm
+    ${connection}=   Send HTTP Request Async   POST   /post   ${body content}
+
+    Wait For Request
+
+    ${body}=     Get Request Body
+    Should Be Equal   ${body}     ${body content}
+
+    Reply By   200   ${body content}
+
+    ${response}=   Get Async Response   ${connection}   1
+    ${response status}=   Get Status From Response   ${response}
+    ${response body}=   Get Body From Response   ${response}
+
+    Should Be Equal   ${response status}    ${200}
+    Should Be Equal   ${response body}    ${body content}
 
 
 Reply by Bytes Body
