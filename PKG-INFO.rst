@@ -12,7 +12,7 @@ to make REST API testing easy.
 Dependencies
 ============
 
-**Python version**: >=3.4
+**Python version**: >=3.8
 
 
 Installation

@@ -32,7 +32,7 @@ Please, do not hesitate to report about bugs using issues here [`Press Me to Rep
 Dependencies
 ============
 
-**Python version**: >=3.4
+**Python version**: >=3.8
 
 
 Installation

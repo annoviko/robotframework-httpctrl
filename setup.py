@@ -63,7 +63,7 @@ setup(
     author='Andrei Novikov',
     author_email='spb.andr@yandex.ru',
 
-    python_requires='>=3.6',
+    python_requires='>=3.8',
     install_requires=['robotframework'],
 
     package_dir={'': 'src'},

@@ -2,9 +2,12 @@
 
 Library         HttpCtrl.Client
 Library         HttpCtrl.Server
+Library         HttpCtrl.Json
 
 Library         Collections
 Library         DateTime
+Library         OperatingSystem
+
 
 *** Test Cases ***
 
@@ -198,3 +201,84 @@ Bind Client to Address Only
     ${source address}=   Get Request Source Address
 
     Should Be Equal   ${source address}   127.0.0.1
+
+
+Read Response Body to File
+    [Teardown]  Stop Server
+    Initialize Client   www.httpbin.org
+
+    ${body content}=   Set Variable   Sync Response Body in File
+    ${filename}=       Set Variable   sync_resp_body.txt
+
+    Send HTTP Request   POST   /post   ${body content}   resp_body_to_file=${filename}
+
+    ${response status}=   Get Response Status
+    Should Be Equal   ${response status}   ${200}
+
+    File Should Exist          ${filename}
+    File Should Not Be Empty   ${filename}
+
+    ${response body}=   Get Response Body
+    ${data node}=       Get Json Value From String   ${response body}   data
+    Should Be Equal     ${data node}   ${body content}
+
+    Remove File   ${filename}
+
+
+Read Response Body with PNG to File
+    [Teardown]  Stop Server
+    Initialize Client   www.httpbin.org
+
+    ${filename}=       Set Variable   random_image.png
+
+    Send HTTP Request   GET   /image/png   resp_body_to_file=${filename}
+
+    ${response status}=   Get Response Status
+    Should Be Equal   ${response status}   ${200}
+
+    File Should Exist          ${filename}
+    File Should Not Be Empty   ${filename}
+
+    Remove File   ${filename}
+
+
+Read Response Body with PNG to RAM
+    [Teardown]  Stop Server
+    Initialize Client   www.httpbin.org
+
+    ${filename}=       Set Variable   random_image.png
+
+    Send HTTP Request   GET   /image/png
+
+    ${response status}=   Get Response Status
+    ${response body}=     Get Response Body
+
+    Should Not Be Equal   ${response body}     ${None}
+    Should Be Equal       ${response status}   ${200}
+
+
+Read Response Body to File Async
+    [Teardown]  Stop Server
+    Initialize Client   127.0.0.1   8000
+    Start Server        127.0.0.1   8000
+
+    ${body content}=   Set Variable   Async Response Body in File
+    ${filename}=       Set Variable   async_resp_body.txt
+
+    ${connection}=   Send HTTP Request Async   GET   /get   resp_body_to_file=${filename}
+
+    Wait For Request
+    
+    Reply By   200   ${body content}
+
+    ${response}=   Get Async Response   ${connection}   1
+
+    File Should Exist          ${filename}
+    File Should Not Be Empty   ${filename}
+
+    Should Not Be Equal   ${response}   ${None}
+    ${body}=       Get Body From Response      ${response}
+
+    Should Be Equal   ${body content}   ${body}
+
+    Remove File   ${filename}
