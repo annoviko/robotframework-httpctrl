@@ -62,6 +62,7 @@ Server Receives Two Messages at Once
     ${method}=   Get Request Method
     ${url}=      Get Request Url
     ${body}=     Get Request Body
+    ${body}=     Decode Bytes To String   ${body}  UTF-8
     Should Be Equal   ${method}   POST
     Should Be Equal   ${url}      /post
     Should Be Equal   ${body}     Message to Post
@@ -71,6 +72,7 @@ Server Receives Two Messages at Once
     ${method}=   Get Request Method
     ${url}=      Get Request Url
     ${body}=     Get Request Body
+    ${body}=     Decode Bytes To String   ${body}  UTF-8
     Should Be Equal   ${method}   PUT
     Should Be Equal   ${url}      /put
     Should Be Equal   ${body}     Message to Put
@@ -122,13 +124,15 @@ Big Response Body
     Wait For Request
 
     ${body}=     Get Request Body
+    ${body}=     Decode Bytes To String   ${body}   UTF-8
     Should Be Equal   ${body}     ${body content}
 
     Reply By   200   ${body content}
 
     ${response}=   Get Async Response   ${connection}   1
     ${response status}=   Get Status From Response   ${response}
-    ${response body}=   Get Body From Response   ${response}
+    ${response body}=     Get Body From Response     ${response}
+    ${response body}=     Decode Bytes To String     ${response body}   UTF-8
 
     Should Be Equal   ${response status}    ${200}
     Should Be Equal   ${response body}    ${body content}
@@ -147,13 +151,16 @@ Big Response Body Without Logging Limit
     Wait For Request
 
     ${body}=     Get Request Body
+    ${body}=     Decode Bytes To String   ${body}   UTF-8
+
     Should Be Equal   ${body}     ${body content}
 
     Reply By   200   ${body content}
 
     ${response}=   Get Async Response   ${connection}   1
     ${response status}=   Get Status From Response   ${response}
-    ${response body}=   Get Body From Response   ${response}
+    ${response body}=     Get Body From Response     ${response}
+    ${response body}=     Decode Bytes To String     ${response body}   UTF-8
 
     Should Be Equal   ${response status}    ${200}
     Should Be Equal   ${response body}    ${body content}
@@ -174,8 +181,7 @@ Reply by Bytes Body
     Reply By   200   ${body bytes}
 
     ${response}=   Get Async Response   ${connection}   1
-    ${response body}=   Get Body From Response   ${response}
-    ${response body bytes}=   Encode String To Bytes   ${response body}   UTF-8
+    ${response body bytes}=   Get Body From Response   ${response}
 
     Should Be Equal   ${response body bytes}   ${body bytes}
 
@@ -253,6 +259,7 @@ Send Request and Check Stub
 
     ${status}=     Get Response Status
     ${body}=       Get Response Body
+    ${body}=       Decode Bytes To String   ${body}   UTF-8
 
     Should Be Equal   ${status}   ${expected status}
     Should Be Equal   ${body}     ${expected body}

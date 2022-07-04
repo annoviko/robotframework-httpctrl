@@ -64,6 +64,7 @@ Send GET request to obtain origin IP address and check that is not empty:
 
         ${response status}=   Get Response Status
         ${response body}=     Get Response Body
+        ${response body}=     Decode Bytes To String   ${response body}   UTF-8
 
         ${expected status}=   Convert To Integer   200
         Should Be Equal   ${response status}   ${expected status}
@@ -79,6 +80,7 @@ request for correctness.
 
     *** Settings ***
 
+    Library         String
     Library         HttpCtrl.Client
     Library         HttpCtrl.Server
 
@@ -97,6 +99,7 @@ request for correctness.
         ${method}=   Get Request Method
         ${url}=      Get Request Url
         ${body}=     Get Request Body
+        ${body}=     Decode Bytes To String   ${body}   UTF-8
 
         Should Be Equal   ${method}   POST
         Should Be Equal   ${url}      /post

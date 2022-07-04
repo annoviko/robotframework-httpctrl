@@ -85,6 +85,7 @@ class Client:
 
             ${response status}=   Get Response Status
             ${response body}=     Get Response Body
+            ${response body}=     Decode Bytes To String   ${response body}   UTF-8
 
             ${expected status}=   Convert To Integer   200
             Should Be Equal   ${response status}   ${expected status}
@@ -764,6 +765,7 @@ class Server:
 
         *** Settings ***
 
+        Library         String
         Library         HttpCtrl.Client
         Library         HttpCtrl.Server
 
@@ -773,7 +775,7 @@ class Server:
         *** Test Cases ***
 
         Receive And Reply To POST
-            ${request body}=   Set Variable   { "message": "Hello!" }
+            ${request body}=   Set Variable   { "method": "POST" }
             Send HTTP Request Async   POST   /post   ${request body}
 
             Wait For Request
@@ -782,6 +784,7 @@ class Server:
             ${method}=   Get Request Method
             ${url}=      Get Request Url
             ${body}=     Get Request Body
+            ${body}=     Decode Bytes To String   ${body}   UTF-8
 
             Should Be Equal   ${method}   POST
             Should Be Equal   ${url}      /post
@@ -813,6 +816,7 @@ class Server:
 
         *** Settings ***
 
+        Library         String
         Library         HttpCtrl.Client
         Library         HttpCtrl.Server
 
@@ -831,6 +835,7 @@ class Server:
             # Check that the client receives pre-defined values by the stub
             ${status}=     Get Response Status
             ${body}=       Get Response Body
+            ${body}=       Decode Bytes To String   ${body}   UTF-8
 
             Should Be Equal   ${status}   ${200}
             Should Be Equal   ${body}     Post Message
@@ -1077,7 +1082,7 @@ class Server:
 
         `status` [in] (int|string): HTTP status code for response that is used by server stub.
 
-        `body` [in] (string): Response body that is used by server stub.
+        `body` [in] (string|bytes): Response body that is used by server stub.
 
         Example how to set stub to reply automatically to request `POST` `/api/v1/request` by status `200`.
 

@@ -1,5 +1,7 @@
 *** Settings ***
 
+Library         String
+
 Library         HttpCtrl.Client
 Library         HttpCtrl.Server
 
@@ -19,6 +21,7 @@ Receive And Reply To POST
     ${method}=   Get Request Method
     ${url}=      Get Request Url
     ${body}=     Get Request Body
+    ${body}=     Decode Bytes To String   ${body}   UTF-8
 
     Should Be Equal   ${method}   POST
     Should Be Equal   ${url}      /post
@@ -50,6 +53,7 @@ Receive And Reply To PUT
     ${method}=   Get Request Method
     ${url}=      Get Request Url
     ${body}=     Get Request Body
+    ${body}=     Decode Bytes To String   ${body}   UTF-8
 
     Should Be Equal   ${method}   PUT
     Should Be Equal   ${url}      /put
@@ -81,6 +85,7 @@ Receive And Reply To PATCH
     ${method}=   Get Request Method
     ${url}=      Get Request Url
     ${body}=     Get Request Body
+    ${body}=     Decode Bytes To String   ${body}   UTF-8
 
     Should Be Equal   ${method}   PATCH
     Should Be Equal   ${url}      /patch
@@ -125,6 +130,7 @@ Receive And Reply To GET with Body
     ${method}=   Get Request Method
     ${url}=      Get Request Url
     ${body}=     Get Request Body
+    ${body}=     Decode Bytes To String   ${body}   UTF-8
 
     Should Be Equal   ${method}   GET
     Should Be Equal   ${url}      /get
@@ -154,6 +160,7 @@ Receive And Reply To DELETE with Body
     ${method}=   Get Request Method
     ${url}=      Get Request Url
     ${body}=     Get Request Body
+    ${body}=     Decode Bytes To String   ${body}   UTF-8
 
     Should Be Equal   ${method}   DELETE
     Should Be Equal   ${url}      /delete
@@ -183,6 +190,7 @@ Receive And Reply To HEAD with Body
     ${method}=   Get Request Method
     ${url}=      Get Request Url
     ${body}=     Get Request Body
+    ${body}=     Decode Bytes To String   ${body}   UTF-8
 
     Should Be Equal   ${method}   HEAD
     Should Be Equal   ${url}      /head
@@ -212,6 +220,7 @@ Receive And Reply To OPTIONS with Body
     ${method}=   Get Request Method
     ${url}=      Get Request Url
     ${body}=     Get Request Body
+    ${body}=     Decode Bytes To String   ${body}   UTF-8
 
     Should Be Equal   ${method}   OPTIONS
     Should Be Equal   ${url}      /options

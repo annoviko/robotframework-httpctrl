@@ -7,6 +7,7 @@ Library         HttpCtrl.Json
 Library         Collections
 Library         DateTime
 Library         OperatingSystem
+Library         String
 
 
 *** Test Cases ***
@@ -21,6 +22,7 @@ Send Request Without Reply
     Wait For Request
 
     ${message}=   Get Request Body
+    ${message}=   Decode Bytes To String   ${message}   UTF-8
     Should Be Equal   ${message}   Hello Server!
 
     ${status}=   Get Response Status
@@ -110,6 +112,7 @@ Receive Async Responses
     Should Not Be Equal   ${response}   ${None}
     ${status}=     Get Status From Response    ${response}
     ${body}=       Get Body From Response      ${response}
+    ${body}=       Decode Bytes To String      ${body}       UTF-8
     ${headers}=    Get Headers From Response   ${response}
     Should Be Equal   ${status}   ${200}
     Should Be Equal   ${body}     Post Response
@@ -119,6 +122,7 @@ Receive Async Responses
     Should Not Be Equal   ${response}   ${None}
     ${status}=     Get Status From Response    ${response}
     ${body}=       Get Body From Response      ${response}
+    ${body}=       Decode Bytes To String      ${body}       UTF-8
     ${headers}=    Get Headers From Response   ${response}
     Should Be Equal   ${status}   ${201}
     Should Be Equal   ${body}     Put Response
@@ -153,6 +157,7 @@ Receive Only One Async Response
     Should Not Be Equal   ${response}   ${None}
     ${status}=     Get Status From Response    ${response}
     ${body}=       Get Body From Response      ${response}
+    ${body}=       Decode Bytes To String      ${body}         UTF-8
     ${headers}=    Get Headers From Response   ${response}
     Should Be Equal   ${status}   ${201}
     Should Be Equal   ${body}     Put Response
