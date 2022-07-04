@@ -85,6 +85,7 @@ class Client:
 
             ${response status}=   Get Response Status
             ${response body}=     Get Response Body
+            ${response body}=     Decode Bytes To String   ${response body}   UTF-8
 
             ${expected status}=   Convert To Integer   200
             Should Be Equal   ${response status}   ${expected status}
@@ -108,6 +109,7 @@ class Client:
         self.__response_guard = threading.Lock()
         self.__response_status = None
         self.__response_message = None
+        self.__response_body_filename = None
         self.__response_body = None
         self.__response_headers = None
 
@@ -223,7 +225,20 @@ class Client:
         return connection
 
 
-    def __wait_response(self, connection):
+    def __read_body_to_file(self, server_response, filename):
+        logger.info("Write body to file '%s'." % filename)
+
+        default_chunk_size = 10000000   # 10 MByte
+        with open(filename, "wb") as file_stream:
+            while True:
+                obtained_chunk = server_response.read(default_chunk_size)
+                if not obtained_chunk:
+                    break
+
+                file_stream.write(obtained_chunk)
+
+
+    def __wait_response(self, connection, read_body_to_file):
         try:
             server_response = connection.getresponse()
 
@@ -231,7 +246,16 @@ class Client:
                 self.__response_status = server_response.status
                 self.__response_message = server_response.msg
                 self.__response_headers = server_response.headers
-                self.__response_body = server_response.read().decode('utf-8')
+
+                if read_body_to_file is None:
+                    self.__response_body_filename = None
+                    self.__response_body = server_response.read()
+                else:
+                    self.__response_body_filename = read_body_to_file
+                    self.__response_body = None
+                    
+                    self.__read_body_to_file(server_response, read_body_to_file)
+
 
         except Exception as exception:
             logger.info("Server has not provided response to the request (reason: %s)." % str(exception))
@@ -240,13 +264,23 @@ class Client:
             connection.close()
 
 
-    def __wait_response_async(self, connection):
+    def __wait_response_async(self, connection, read_body_to_file):
         try:
             server_response = connection.getresponse()
 
             with self.__event_queue:
+                if read_body_to_file is None:
+                    response_body_file = None
+                    response_body = server_response.read()
+
+                else:
+                    response_body_file = read_body_to_file
+                    response_body = None
+
+                    self.__read_body_to_file(server_response, read_body_to_file)
+
                 response_instance = Response(server_response.status, server_response.reason,
-                                             server_response.read().decode('utf-8'),
+                                             response_body, response_body_file,
                                              server_response.headers)
 
                 self.__async_queue[connection] = response_instance
@@ -259,22 +293,22 @@ class Client:
             connection.close()
 
 
-    def __send_request(self, connection_type, method, url, body):
+    def __send_request(self, connection_type, method, url, body, read_body_to_file):
         connection = self.__send(connection_type, method, url, body)
-        self.__wait_response(connection)
+        self.__wait_response(connection, read_body_to_file)
 
 
-    def __sent_request_async(self, connection_type, method, url, body):
+    def __sent_request_async(self, connection_type, method, url, body, read_body_to_file):
         connection = self.__send(connection_type, method, url, body)
 
-        wait_thread = threading.Thread(target=self.__wait_response_async, args=(connection,))
+        wait_thread = threading.Thread(target=self.__wait_response_async, args=(connection, read_body_to_file))
         wait_thread.daemon = True
         wait_thread.start()
 
         return connection
 
 
-    def send_http_request(self, method, url, body=None):
+    def send_http_request(self, method, url, body=None, resp_body_to_file=None):
         """
 
         Send HTTP request with specified parameters. This function is blocked until server replies or
@@ -285,6 +319,10 @@ class Client:
         `url` [in] (string): Path to the resource, for example, in case address www.httpbin.org/ip - '/ip' is an path.
 
         `body` [in] (string): Body of the request.
+
+        `resp_body_to_file` [in] (string): Path to file where response body should be written. By default is `None` - response 
+        body is writing in RAM. It is useful to write response body into a file when it is expected to be big enough to keep
+        it in the memory.
 
         Example where GET request is sent to server:
 
@@ -306,12 +344,22 @@ class Client:
 
             ${body}=   Set Variable   { "message": "Hello World!" }
             Send HTTP Request   POST   /post   ${body}
+        
+        Example where GET request is sent and where response body is written into a file:
+
+        +-------------------+-----+--------------------+-----------------------------------+
+        | Send HTTP Request | GET | /download_big_file | resp_body_to_file=big_archive.tar |
+        +-------------------+-----+--------------------+-----------------------------------+
+
+        .. code:: text
+
+            Send HTTP Request   GET   /download_big_file   resp_body_to_file=big_archive.tar
 
         """
-        self.__send_request('http', method, url, body)
+        self.__send_request('http', method, url, body, resp_body_to_file)
 
 
-    def send_http_request_async(self, method, url, body=None):
+    def send_http_request_async(self, method, url, body=None, resp_body_to_file=None):
         """
 
         Send HTTP request with specified parameters asynchronously. Non-blocking function to send request that waits
@@ -324,6 +372,10 @@ class Client:
 
         `body` [in] (string): Body of the request.
 
+        `resp_body_to_file` [in] (string): Path to file where response body should be written. By default is `None` - response 
+        body is writing in RAM. It is useful to write response body into a file when it is expected to be big enough to keep
+        it in the memory.
+
         Example where PUT request is sent with specific body:
 
         +----------------+-------------------------+-----+------+---------------+
@@ -334,11 +386,21 @@ class Client:
 
             ${connection}=   Send HTTP Request Async   PUT   /put   Hello Server!
 
+        Example where GET request is sent and where response body is written into a file:
+
+        +----------------+-------------------------+-----+--------------------+-----------------------------------+
+        | ${connection}= | Send HTTP Request Async | GET | /download_big_file | resp_body_to_file=big_archive.tar |
+        +----------------+-------------------------+-----+--------------------+-----------------------------------+
+
+        .. code:: text
+
+            ${connection}=   Send HTTP Request Async   GET   /download_big_file   resp_body_to_file=big_archive.tar
+
         """
-        return self.__sent_request_async('http', method, url, body)
+        return self.__sent_request_async('http', method, url, body, resp_body_to_file)
 
 
-    def send_https_request(self, method, url, body=None):
+    def send_https_request(self, method, url, body=None, resp_body_to_file=None):
         """
 
         Send HTTPS request with specified parameters.
@@ -348,6 +410,10 @@ class Client:
         `url` [in] (string): Path to the resource, for example, in case address www.httpbin.org/ip - '/ip' is an path.
 
         `body` [in] (string): Body of the request.
+
+        `resp_body_to_file` [in] (string): Path to file where response body should be written. By default is `None` - response 
+        body is writing in RAM. It is useful to write response body into a file when it is expected to be big enough to keep
+        it in the memory.
 
         Example where PATCH request to update parameters:
 
@@ -361,10 +427,10 @@ class Client:
             Send HTTPS Request   PATCH   /patch   ${body}
 
         """
-        self.__send_request('https', method, url, body)
+        self.__send_request('https', method, url, body, resp_body_to_file)
 
 
-    def send_https_request_async(self, method, url, body=None):
+    def send_https_request_async(self, method, url, body=None, resp_body_to_file=None):
         """
 
         Send HTTPS request with specified parameters asynchronously. Non-blocking function to send request that waits
@@ -377,6 +443,10 @@ class Client:
 
         `body` [in] (string): Body of the request.
 
+        `resp_body_to_file` [in] (string): Path to file where response body should be written. By default is `None` - response 
+        body is writing in RAM. It is useful to write response body into a file when it is expected to be big enough to keep
+        it in the memory.
+
         Example where DELETE request is sent with specific body:
 
         +----------------+--------------------------+--------+---------+
@@ -388,7 +458,7 @@ class Client:
             ${connection}=   Send HTTPS Request Async   DELETE   /delete
 
         """
-        return self.__sent_request_async('http', method, url, body)
+        return self.__sent_request_async('http', method, url, body, resp_body_to_file)
 
 
     def set_request_header(self, key, value):
@@ -476,7 +546,7 @@ class Client:
     def get_response_body(self):
         """
 
-        Return response body as a string. This method should be called once after 'Send HTTP Request' or
+        Return response body as a byte array. This method should be called once after 'Send HTTP Request' or
         'Send HTTPS Request'. It returns None, in case of attempt to get response code more then once or if
         'Send HTTP Request' or 'Send HTTPS Request' is not called before.
 
@@ -492,8 +562,18 @@ class Client:
 
         """
         with self.__response_guard:
-            body = self.__response_body
+            body = None
+
+            if self.__response_body is not None:
+                body = self.__response_body
+
+            elif self.__response_body_filename is not None:
+                with open(self.__response_body_filename) as file_stream:
+                    body = file_stream.read()
+
+            self.__response_body_filename = None
             self.__response_body = None
+
             return body
 
 
@@ -634,7 +714,7 @@ class Client:
     def get_body_from_response(self, response):
         """
 
-        Return response body as a string from the specified response object that was obtained by function
+        Return response body as a byte array from the specified response object that was obtained by function
         'Get Async Response'. Return 'None' if response object is None.
 
         Example how to get response code from a response object:
@@ -685,6 +765,7 @@ class Server:
 
         *** Settings ***
 
+        Library         String
         Library         HttpCtrl.Client
         Library         HttpCtrl.Server
 
@@ -694,7 +775,7 @@ class Server:
         *** Test Cases ***
 
         Receive And Reply To POST
-            ${request body}=   Set Variable   { "message": "Hello!" }
+            ${request body}=   Set Variable   { "method": "POST" }
             Send HTTP Request Async   POST   /post   ${request body}
 
             Wait For Request
@@ -703,6 +784,7 @@ class Server:
             ${method}=   Get Request Method
             ${url}=      Get Request Url
             ${body}=     Get Request Body
+            ${body}=     Decode Bytes To String   ${body}   UTF-8
 
             Should Be Equal   ${method}   POST
             Should Be Equal   ${url}      /post
@@ -734,6 +816,7 @@ class Server:
 
         *** Settings ***
 
+        Library         String
         Library         HttpCtrl.Client
         Library         HttpCtrl.Server
 
@@ -752,6 +835,7 @@ class Server:
             # Check that the client receives pre-defined values by the stub
             ${status}=     Get Response Status
             ${body}=       Get Response Body
+            ${body}=       Decode Bytes To String   ${body}   UTF-8
 
             Should Be Equal   ${status}   ${200}
             Should Be Equal   ${body}     Post Message
@@ -998,7 +1082,7 @@ class Server:
 
         `status` [in] (int|string): HTTP status code for response that is used by server stub.
 
-        `body` [in] (string): Response body that is used by server stub.
+        `body` [in] (string|bytes): Response body that is used by server stub.
 
         Example how to set stub to reply automatically to request `POST` `/api/v1/request` by status `200`.
 
@@ -1026,7 +1110,7 @@ class Server:
             raise AssertionError(message_error)
         
         criteria = HttpStubCriteria(method=method, url=url)
-        response = Response(int(status), None, body, None)
+        response = Response(int(status), None, body, None, None)
         HttpStubContainer().add(criteria, response)
 
 
@@ -1285,7 +1369,7 @@ class Server:
             Reply By   200   ${body bytes}
 
         """
-        response = Response(int(status), None, body, self.__response_headers)
+        response = Response(int(status), None, body, None, self.__response_headers)
         ResponseStorage().push(response)
 
 

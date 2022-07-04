@@ -69,7 +69,7 @@ class HttpHandler(SimpleHTTPRequestHandler):
     def __extract_body(self):
         body_length = int(self.headers.get('Content-Length', 0))
         if body_length > 0:
-            return self.rfile.read(body_length).decode('utf-8')
+            return self.rfile.read(body_length)
 
         return None
 

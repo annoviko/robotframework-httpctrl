@@ -1,5 +1,22 @@
 ------------------------------------------------------------------------
 
+CHANGE NOTES FOR 0.3.0 (RELEASED: Jul 4, 2022)
+
+------------------------------------------------------------------------
+
+GENERAL CHANGES
+
+- Introduce new argument `resp_body_to_file` for functions `Send HTTP Request`, `Send HTTP Request Async`, 
+    `Send Https Request`, `Send Https Request Async` to write response body to a file that is specified
+    by the argument.
+  See: https://github.com/annoviko/robotframework-httpctrl/issues/36
+
+- Changed return type for `Get Body From Response` and `Get Response Body` from `string` to `bytes`.
+  See: https://github.com/annoviko/robotframework-httpctrl/issues/37
+
+
+------------------------------------------------------------------------
+
 CHANGE NOTES FOR 0.2.7 (RELEASED: Jun 30, 2022)
 
 ------------------------------------------------------------------------
