@@ -458,7 +458,7 @@ class Client:
             ${connection}=   Send HTTPS Request Async   DELETE   /delete
 
         """
-        return self.__sent_request_async('http', method, url, body, resp_body_to_file)
+        return self.__sent_request_async('https', method, url, body, resp_body_to_file)
 
 
     def set_request_header(self, key, value):
