@@ -279,9 +279,15 @@ class Client:
 
                     self.__read_body_to_file(server_response, read_body_to_file)
 
+                headers = server_response.getheaders()
+                headers_dict = {}
+                if headers is not None:
+                    for key, value in headers:
+                        headers_dict[key] = value
+
                 response_instance = Response(server_response.status, server_response.reason,
                                              response_body, response_body_file,
-                                             server_response.headers)
+                                             headers_dict)
 
                 self.__async_queue[connection] = response_instance
                 self.__event_queue.notify_all()
@@ -623,7 +629,7 @@ class Client:
             return self.__async_queue.pop(connection, None)
 
 
-    def get_status_from_response(self, response):
+    def get_status_from_response(self, response : Response):
         """
 
         Return response status as an integer value from the specified response object that was obtained by function
@@ -652,7 +658,7 @@ class Client:
         return response.get_status()
 
 
-    def get_reason_from_response(self, response):
+    def get_reason_from_response(self, response : Response):
         """
 
         Return response reason as a string from the specified response object that was obtained by function
@@ -682,10 +688,10 @@ class Client:
         return response.get_reason()
 
 
-    def get_headers_from_response(self, response):
+    def get_headers_from_response(self, response : Response) -> dict:
         """
 
-        Return response headers as a map from the specified response object that was obtained by function
+        Return response headers as a dictionary from the specified response object that was obtained by function
         'Get Async Response'. Return 'None' if response object is None.
 
         Example how to get response headers from a response object:
@@ -711,7 +717,7 @@ class Client:
         return response.get_headers()
 
 
-    def get_body_from_response(self, response):
+    def get_body_from_response(self, response : Response):
         """
 
         Return response body as a byte array from the specified response object that was obtained by function

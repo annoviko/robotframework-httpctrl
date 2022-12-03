@@ -13,7 +13,7 @@ from HttpCtrl.utils.logger import LoggerAssistant
 
 
 class Response:
-    def __init__(self, status, reason, body, body_file, headers):
+    def __init__(self, status, reason, body, body_file, headers : dict):
         self.__status = status
         self.__reason = reason
         self.__body = body
@@ -49,5 +49,5 @@ class Response:
         
         return self.__body
 
-    def get_headers(self):
+    def get_headers(self) -> dict:
         return self.__headers

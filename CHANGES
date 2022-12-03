@@ -1,5 +1,20 @@
 ------------------------------------------------------------------------
 
+CHANGE NOTES FOR 0.3.1 (RELEASED: Dec 3, 2022)
+
+------------------------------------------------------------------------
+
+GENERAL CHANGES
+
+- Fixed bug in function `Send HTTPS Request Async` when HTTP protocol was used instead of HTTPS.
+  See: https://github.com/annoviko/robotframework-httpctrl/pull/39
+
+- Fixed bug with response header types when `HTTPMessage` object was returned instead of `dict`.
+  See: https://github.com/annoviko/robotframework-httpctrl/issues/40
+
+
+------------------------------------------------------------------------
+
 CHANGE NOTES FOR 0.3.0 (RELEASED: Jul 4, 2022)
 
 ------------------------------------------------------------------------
