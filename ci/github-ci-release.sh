@@ -72,7 +72,7 @@ fi
 # packages to generate documentation
 echo "[INFO] Install packages that are need to release the library and documentation."
 
-pip3 install robotframework docutils pygments twine
+pip3 install robotframework docutils pygments twine build
 
 
 # Release to PyPi
