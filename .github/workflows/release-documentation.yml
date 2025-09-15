@@ -1,4 +1,4 @@
-name: publish httpctrl documentation
+name: publish documentation
 
 on: workflow_dispatch
 
