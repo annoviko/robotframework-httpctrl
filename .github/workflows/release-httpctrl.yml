@@ -29,8 +29,8 @@ jobs:
         HTTPCTRL_USERNAME: ${{ secrets.HTTPCTRL_USERNAME }}
         HTTPCTRL_PASSWORD: ${{ secrets.HTTPCTRL_PASSWORD }}
         HTTPCTRL_EMAIL: ${{ secrets.HTTPCTRL_EMAIL }}
-        TWINE_USERNAME: ${{ secrets.TWINE_USERNAME }}
-        TWINE_PASSWORD: ${{ secrets.TWINE_PASSWORD }}
+        TWINE_USERNAME: __token__
+        TWINE_PASSWORD: ${{ secrets.HTTPCTRL_PYPI_API_TOKEN }}
       shell: bash
       run: ci/github-ci-release.sh
 
