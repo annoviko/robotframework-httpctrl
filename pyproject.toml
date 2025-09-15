@@ -1,0 +1,45 @@
+[project]
+name = "robotframework-httpctrl"
+dynamic = ["version"]
+authors = [
+    { name = "Andrei Novikov", email = "spb.andr@yandex.ru" },
+]
+maintainers = [
+    { name = "Andrei Novikov", email = "spb.andr@yandex.ru" },
+]
+description = "robotframework-httpctrl is a library for Robot Framework that provides HTTP/HTTPS client and HTTP server services."
+readme = "PKG-INFO.rst"
+license = "BSD-3-Clause"
+license-files = ["LICENSE"]
+requires-python = ">= 3.8"
+dependencies = [
+  "robotframework",
+]
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Intended Audience :: Telecommunications Industry",
+    "Natural Language :: English",
+    "Topic :: Software Development :: Build Tools",
+    "Programming Language :: Python :: 3 :: Only",
+    "Topic :: Education",
+    "Topic :: Internet :: WWW/HTTP",
+    "Topic :: Internet :: WWW/HTTP :: HTTP Servers",
+    "Topic :: Software Development :: Testing",
+    "Framework :: Robot Framework :: Library",
+]
+keywords = ["httpctrl", "http", "https", "robotframework", "client", "server", "json", "test", "testing"]
+
+[project.urls]
+homepage = "https://annoviko.github.io/robotframework-httpctrl/"
+source = "https://github.com/annoviko/robotframework-httpctrl"
+documentation = "https://annoviko.github.io/robotframework-httpctrl/"
+tracker = "https://github.com/annoviko/robotframework-httpctrl/issues"
+changelog = "https://github.com/annoviko/robotframework-httpctrl/blob/master/CHANGES"
+
+[tool.setuptools]
+package-dir = {"" = "src"}
+packages = ["HttpCtrl", "HttpCtrl.utils"]
+
+[tool.setuptools.dynamic]
+version = { file = "VERSION" }
