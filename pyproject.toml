@@ -19,7 +19,7 @@ classifiers = [
     "Development Status :: 5 - Production/Stable",
     "Intended Audience :: Developers",
     "Intended Audience :: Telecommunications Industry",
-    "Natural Language :: English',
+    "Natural Language :: English",
     "Topic :: Software Development :: Build Tools",
     "Programming Language :: Python :: 3 :: Only",
     "Topic :: Education",
