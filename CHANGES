@@ -6,7 +6,10 @@ CHANGE NOTES FOR 0.3.2 (RELEASED: Sep 11, 2025)
 
 GENERAL CHANGES
 
-- Add pyproject.toml to support modern PEP 517/518 builds. Retains setup.py for backwards compatibility.
+- Add `pyproject.toml` to support modern PEP 517/518 builds.
+  See: https://github.com/annoviko/robotframework-httpctrl/issues/44
+
+- Removed `setup.py` - old-style installs may not work.
   See: https://github.com/annoviko/robotframework-httpctrl/issues/44
 
 
