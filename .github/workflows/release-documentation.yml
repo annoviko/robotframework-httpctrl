@@ -1,4 +1,4 @@
-name: release httpctrl
+name: publish httpctrl documentation
 
 on: workflow_dispatch
 
