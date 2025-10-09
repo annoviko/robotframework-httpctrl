@@ -3,26 +3,31 @@
 HttpCtrl library provides HTTP/HTTPS client and server API to Robot Framework to make REST API testing easy.
 
 Authors: Andrei Novikov
-Date: 2018-2022
+Date: 2018-2025
 Copyright: The 3-Clause BSD License
 
 """
 
 import datetime
 import http.client
+import io
 import json
+import mimetypes
+import os
 import threading
+import uuid
 
 from robot.api import logger
 
-from HttpCtrl.utils.logger import LoggerAssistant
-
-from HttpCtrl.internal_messages import IgnoreRequest
 from HttpCtrl.http_server import HttpServer
 from HttpCtrl.http_stub import HttpStubContainer, HttpStubCriteria
+from HttpCtrl.internal_messages import IgnoreRequest
 from HttpCtrl.request_storage import RequestStorage
-from HttpCtrl.response_storage import ResponseStorage
 from HttpCtrl.response import Response
+from HttpCtrl.response_storage import ResponseStorage
+from HttpCtrl.utils.logger import LoggerAssistant
+
+CRLF = "\r\n"
 
 
 class Client:
@@ -116,8 +121,9 @@ class Client:
         self.__event_queue = threading.Condition()
         self.__async_queue = {}
 
-
-    def initialize_client(self, server_host, server_port=None, client_host=None, client_port=0):
+    def initialize_client(
+        self, server_host, server_port=None, client_host=None, client_port=0
+    ):
         """
 
         Initialize client using host and port of a server which will be used for communication.
@@ -183,13 +189,11 @@ class Client:
         self.__client_host = client_host
         self.__client_port = client_port
 
-
     def __get_source_address(self):
         if self.__client_host is None:
             return None
 
         return self.__client_host, int(self.__client_port)
-
 
     def __send(self, connection_type, method, url, body):
         if self.__server_host is None or self.__server_port is None:
@@ -198,25 +202,42 @@ class Client:
         endpoint = "%s:%s" % (self.__server_host, str(self.__server_port))
         source_address = self.__get_source_address()
 
-        logger.info("Connect to the server (type: '%s', endpoint: '%s')" % (connection_type, endpoint))
+        logger.info(
+            "Connect to the server (type: '%s', endpoint: '%s')"
+            % (connection_type, endpoint)
+        )
 
-        if connection_type == 'http':
-            connection = http.client.HTTPConnection(endpoint, source_address=source_address)
-        elif connection_type == 'https':
-            connection = http.client.HTTPSConnection(endpoint, source_address=source_address)
+        if connection_type == "http":
+            connection = http.client.HTTPConnection(
+                endpoint, source_address=source_address
+            )
+        elif connection_type == "https":
+            connection = http.client.HTTPSConnection(
+                endpoint, source_address=source_address
+            )
         else:
-            raise AssertionError("Internal error of the client, please report to "
-                                 "'https://github.com/annoviko/robotframework-httpctrl/issues'.")
+            raise AssertionError(
+                "Internal error of the client, please report to "
+                "'https://github.com/annoviko/robotframework-httpctrl/issues'."
+            )
 
-        logger.info("Send request to the server (method: '%s', url: '%s')." % (method, url))
+        logger.info(
+            "Send request to the server (method: '%s', url: '%s')." % (method, url)
+        )
         try:
             connection.request(method, url, body, self.__request_headers)
         except Exception as exception:
-            logger.info("Impossible to send request to the server (reason: '%s')." % str(exception))
+            logger.info(
+                "Impossible to send request to the server (reason: '%s')."
+                % str(exception)
+            )
 
         self.__request_headers = {}
 
-        logger.info("Request (type: '%s', method '%s') was sent to '%s'." % (connection_type, method, endpoint))
+        logger.info(
+            "Request (type: '%s', method '%s') was sent to '%s'."
+            % (connection_type, method, endpoint)
+        )
         logger.info("%s %s" % (method, url))
         if body is not None:
             body_to_log = LoggerAssistant.get_body(body)
@@ -224,11 +245,10 @@ class Client:
 
         return connection
 
-
     def __read_body_to_file(self, server_response, filename):
         logger.info("Write body to file '%s'." % filename)
 
-        default_chunk_size = 10000000   # 10 MByte
+        default_chunk_size = 10000000  # 10 MByte
         with open(filename, "wb") as file_stream:
             while True:
                 obtained_chunk = server_response.read(default_chunk_size)
@@ -236,7 +256,6 @@ class Client:
                     break
 
                 file_stream.write(obtained_chunk)
-
 
     def __wait_response(self, connection, read_body_to_file):
         try:
@@ -253,16 +272,17 @@ class Client:
                 else:
                     self.__response_body_filename = read_body_to_file
                     self.__response_body = None
-                    
+
                     self.__read_body_to_file(server_response, read_body_to_file)
 
-
         except Exception as exception:
-            logger.info("Server has not provided response to the request (reason: %s)." % str(exception))
+            logger.info(
+                "Server has not provided response to the request (reason: %s)."
+                % str(exception)
+            )
 
         finally:
             connection.close()
-
 
     def __wait_response_async(self, connection, read_body_to_file):
         try:
@@ -285,34 +305,169 @@ class Client:
                     for key, value in headers:
                         headers_dict[key] = value
 
-                response_instance = Response(server_response.status, server_response.reason,
-                                             response_body, response_body_file,
-                                             headers_dict)
+                response_instance = Response(
+                    server_response.status,
+                    server_response.reason,
+                    response_body,
+                    response_body_file,
+                    headers_dict,
+                )
 
                 self.__async_queue[connection] = response_instance
                 self.__event_queue.notify_all()
 
         except Exception as exception:
-            logger.info("Server has not provided response to the request (reason: %s)." % str(exception))
+            logger.info(
+                "Server has not provided response to the request (reason: %s)."
+                % str(exception)
+            )
 
         finally:
             connection.close()
-
 
     def __send_request(self, connection_type, method, url, body, read_body_to_file):
         connection = self.__send(connection_type, method, url, body)
         self.__wait_response(connection, read_body_to_file)
 
-
-    def __sent_request_async(self, connection_type, method, url, body, read_body_to_file):
+    def __sent_request_async(
+        self, connection_type, method, url, body, read_body_to_file
+    ):
         connection = self.__send(connection_type, method, url, body)
 
-        wait_thread = threading.Thread(target=self.__wait_response_async, args=(connection, read_body_to_file))
+        wait_thread = threading.Thread(
+            target=self.__wait_response_async, args=(connection, read_body_to_file)
+        )
         wait_thread.daemon = True
         wait_thread.start()
 
         return connection
 
+    def __write_multipart_request_data_body(self, body, data, boundary):
+        for field_name, value in data.items():
+            body.write(f"--{boundary}{CRLF}".encode())
+            body.write(
+                f'Content-Disposition: form-data; name="{field_name}"{CRLF}{CRLF}'.encode()
+            )
+            body.write(str(value).encode())
+            body.write(CRLF.encode())
+
+    def create_multipart_request_body(self, files, data=None):
+        """
+
+        Create a multipart/form-data body for HTTP requests.
+
+        This helper method builds a multipart request body from provided files
+        and optional additional form data. It returns both the body as bytes
+        and the boundary string, which is required to set the Content-Type header.
+
+
+        `files` [in] (dict): A dictionary mapping form field names to a list of file paths.
+        Each file path must exist; otherwise, FileNotFoundError is raised.
+        Example: {"images": ["cat.jpg", "dog.jpg"], "docs": ["file.pdf"]}
+
+        `data` [in] (dict, optional): Additional form fields to include in the body.
+        Keys are field names, values are strings or numbers. Defaults to None.
+
+        Returns:
+            Tuple[bytes, str]: A tuple containing the multipart body as bytes
+            and the boundary string used in the Content-Type header.
+
+
+        Example to create a multipart/form-data body:
+
+        +-------------------------------+---------------+
+        | Create Multipart Request Body | ${files dict} |
+        +-------------------------------+---------------+
+
+        .. code:: text
+
+            # Prepare file attachments
+            @{images_list}=    Create List    cat.jpg    dog.jpg
+            ${files}=          Create Dictionary    images=@{images_list}
+
+            # Build multipart body and get boundary
+            ${body}   ${boundary}=   Create Multipart Request Body   ${files}
+
+            # Set multipart Content-Type header
+            Set Multipart Request Header   ${boundary}
+
+            # Send multipart request to your endpoint
+            Send HTTP Request   POST   /your-endpoint   ${body}
+
+        Example to create a multipart/form-data body with images and PDFs:
+
+        .. code:: text
+
+            # Prepare file attachments
+            @{images_list}=    Create List    cat.jpg    dog.jpg
+            @{pdf_list}=       Create List    report1.pdf    report2.pdf
+            ${files}=          Create Dictionary    images=@{images_list}    documents=@{pdf_list}
+
+            # Build multipart body and get boundary
+            ${body}   ${boundary}=   Create Multipart Request Body   ${files}
+
+            # Set multipart Content-Type header
+            Set Multipart Request Header   ${boundary}
+
+            # Send multipart request to your endpoint
+            Send HTTP Request   POST   /your-endpoint   ${body}
+
+        Example to create a multipart/form-data body with additional information:
+
+        +-------------------------------+---------------+--------------+
+        | Create Multipart Request Body | ${files dict} | ${data dict} |
+        +-------------------------------+---------------+--------------+
+
+        .. code:: text
+
+            # Prepare file attachments
+            @{images_list}=    Create List    cat.jpg    dog.jpg
+            ${files}=          Create Dictionary    images=@{images_list}
+
+            # Prepare additional form data
+            @{ages_list}=      Create List    5    10
+            ${data}=           Create Dictionary    animal_ages=@{ages_list}
+
+            # Build multipart body and get boundary
+            ${body}   ${boundary}=   Create Multipart Request Body   ${files}    ${data}
+
+            # Set multipart Content-Type header
+            Set Multipart Request Header   ${boundary}
+
+            # Send multipart request to your endpoint
+            Send HTTP Request   POST   /your-endpoint   ${body}
+
+        """
+        boundary = "----WebKitFormBoundary" + uuid.uuid4().hex
+        body = io.BytesIO()
+
+        for field_name, paths in files.items():
+            for path in paths:
+                if os.path.exists(path) is False:
+                    raise FileNotFoundError(
+                        f"File not found: '{path}'. Ensure the file exists and is accessible."
+                    )
+
+                filename = os.path.basename(path)
+                mime_type = mimetypes.guess_type(path)[0] or "application/octet-stream"
+
+                with open(path, "rb") as f:
+                    file_data = f.read()
+
+                body.write(f"--{boundary}{CRLF}".encode())
+                body.write(
+                    f'Content-Disposition: form-data; name="{field_name}"; filename="{filename}"{CRLF}'.encode()
+                )
+                body.write(f"Content-Type: {mime_type}{CRLF}{CRLF}".encode())
+                body.write(file_data)
+                body.write(CRLF.encode())
+
+        if data is not None:
+            self.__write_multipart_request_data_body(body, data, boundary)
+
+        body.write(f"--{boundary}--{CRLF}".encode())
+
+        return body.getvalue(), boundary
 
     def send_http_request(self, method, url, body=None, resp_body_to_file=None):
         """
@@ -326,7 +481,7 @@ class Client:
 
         `body` [in] (string): Body of the request.
 
-        `resp_body_to_file` [in] (string): Path to file where response body should be written. By default is `None` - response 
+        `resp_body_to_file` [in] (string): Path to file where response body should be written. By default is `None` - response
         body is writing in RAM. It is useful to write response body into a file when it is expected to be big enough to keep
         it in the memory.
 
@@ -350,7 +505,7 @@ class Client:
 
             ${body}=   Set Variable   { "message": "Hello World!" }
             Send HTTP Request   POST   /post   ${body}
-        
+
         Example where GET request is sent and where response body is written into a file:
 
         +-------------------+-----+--------------------+-----------------------------------+
@@ -362,8 +517,7 @@ class Client:
             Send HTTP Request   GET   /download_big_file   resp_body_to_file=big_archive.tar
 
         """
-        self.__send_request('http', method, url, body, resp_body_to_file)
-
+        self.__send_request("http", method, url, body, resp_body_to_file)
 
     def send_http_request_async(self, method, url, body=None, resp_body_to_file=None):
         """
@@ -378,7 +532,7 @@ class Client:
 
         `body` [in] (string): Body of the request.
 
-        `resp_body_to_file` [in] (string): Path to file where response body should be written. By default is `None` - response 
+        `resp_body_to_file` [in] (string): Path to file where response body should be written. By default is `None` - response
         body is writing in RAM. It is useful to write response body into a file when it is expected to be big enough to keep
         it in the memory.
 
@@ -403,8 +557,7 @@ class Client:
             ${connection}=   Send HTTP Request Async   GET   /download_big_file   resp_body_to_file=big_archive.tar
 
         """
-        return self.__sent_request_async('http', method, url, body, resp_body_to_file)
-
+        return self.__sent_request_async("http", method, url, body, resp_body_to_file)
 
     def send_https_request(self, method, url, body=None, resp_body_to_file=None):
         """
@@ -417,7 +570,7 @@ class Client:
 
         `body` [in] (string): Body of the request.
 
-        `resp_body_to_file` [in] (string): Path to file where response body should be written. By default is `None` - response 
+        `resp_body_to_file` [in] (string): Path to file where response body should be written. By default is `None` - response
         body is writing in RAM. It is useful to write response body into a file when it is expected to be big enough to keep
         it in the memory.
 
@@ -433,8 +586,7 @@ class Client:
             Send HTTPS Request   PATCH   /patch   ${body}
 
         """
-        self.__send_request('https', method, url, body, resp_body_to_file)
-
+        self.__send_request("https", method, url, body, resp_body_to_file)
 
     def send_https_request_async(self, method, url, body=None, resp_body_to_file=None):
         """
@@ -449,7 +601,7 @@ class Client:
 
         `body` [in] (string): Body of the request.
 
-        `resp_body_to_file` [in] (string): Path to file where response body should be written. By default is `None` - response 
+        `resp_body_to_file` [in] (string): Path to file where response body should be written. By default is `None` - response
         body is writing in RAM. It is useful to write response body into a file when it is expected to be big enough to keep
         it in the memory.
 
@@ -464,14 +616,44 @@ class Client:
             ${connection}=   Send HTTPS Request Async   DELETE   /delete
 
         """
-        return self.__sent_request_async('https', method, url, body, resp_body_to_file)
+        return self.__sent_request_async("https", method, url, body, resp_body_to_file)
 
-
-    def set_request_header(self, key, value):
+    def set_multipart_request_header(self, boundary):
         """
 
-        Set HTTP header for request that is going to be sent. Should be called before 'Send HTTP Request' or
-        'Send HTTPS Request'.
+        Set the Content-Type header for a multipart/form-data HTTP request.
+        Should be called before \`Send HTTP Request\` or \`Send HTTPS Request\`.
+
+        This helper method simplifies multipart requests by automatically
+        constructing and setting the correct Content-Type header value,
+        including the boundary string used to separate parts in the request body.
+
+        `boundary` [in] (string): The boundary string returned from `create_multipart_request_body`,
+        used to delimit sections of the multipart form data.
+
+        Example where the multipart header is set automatically:
+
+        +------------------------------+-----------------------------------+
+        | Set Multipart Request Header | ${boundary}                       |
+        +------------------------------+-----------------------------------+
+
+        .. code:: text
+
+            ${files}=    Create Dictionary    images=${["cat.jpg", "dog.jpg"]}
+            ${data}=     Create Dictionary    animal_ages=[5, 10]
+
+            ${body}      ${boundary}=         Create Multipart Request Body   ${files}    ${data}
+            Set Multipart Request Header      ${boundary}
+
+        """
+        header_value = f"multipart/form-data; boundary={boundary}"
+        self.set_request_header("Content-Type", header_value)
+
+    def set_request_header(self, key: str, value: str):
+        """
+
+        Set HTTP header for request that is going to be sent. Should be called before \`Send HTTP Request\` or
+        \`Send HTTPS Request\`.
 
         `key` [in] (string): Header name that should be used in the request (be aware of case-sensitive headers).
 
@@ -492,7 +674,10 @@ class Client:
 
         """
         self.__request_headers[key] = value
-
+        logger.info(
+            "Header (%s: %s) is added (total headers: %d)."
+            % (key, value, len(self.__request_headers))
+        )
 
     def get_response_status(self):
         """
@@ -517,13 +702,11 @@ class Client:
             self.__response_status = None
             return status
 
-
     def get_response_message(self):
         with self.__response_guard:
             message = self.__response_message
             self.__response_message = None
             return message
-
 
     def get_response_headers(self):
         """
@@ -547,7 +730,6 @@ class Client:
             headers = self.__response_headers
             self.__response_headers = None
             return headers
-
 
     def get_response_body(self):
         """
@@ -581,7 +763,6 @@ class Client:
             self.__response_body = None
 
             return body
-
 
     def get_async_response(self, connection, timeout=0):
         """
@@ -628,8 +809,7 @@ class Client:
 
             return self.__async_queue.pop(connection, None)
 
-
-    def get_status_from_response(self, response : Response):
+    def get_status_from_response(self, response: Response):
         """
 
         Return response status as an integer value from the specified response object that was obtained by function
@@ -657,8 +837,7 @@ class Client:
 
         return response.get_status()
 
-
-    def get_reason_from_response(self, response : Response):
+    def get_reason_from_response(self, response: Response):
         """
 
         Return response reason as a string from the specified response object that was obtained by function
@@ -687,8 +866,7 @@ class Client:
 
         return response.get_reason()
 
-
-    def get_headers_from_response(self, response : Response) -> dict:
+    def get_headers_from_response(self, response: Response) -> dict:
         """
 
         Return response headers as a dictionary from the specified response object that was obtained by function
@@ -716,8 +894,7 @@ class Client:
 
         return response.get_headers()
 
-
-    def get_body_from_response(self, response : Response):
+    def get_body_from_response(self, response: Response):
         """
 
         Return response body as a byte array from the specified response object that was obtained by function
@@ -744,7 +921,6 @@ class Client:
             return None
 
         return response.get_body()
-
 
 
 class Server:
@@ -868,10 +1044,8 @@ class Server:
         self.__server = None
         self.__thread = None
 
-
     def __del__(self):
         self.stop_server()
-
 
     def start_server(self, host, port):
         """
@@ -925,15 +1099,16 @@ class Server:
 
         self.stop_server()
 
-        logger.info("Prepare HTTP server '%s:%s' and thread to serve it." % (host, port))
+        logger.info(
+            "Prepare HTTP server '%s:%s' and thread to serve it." % (host, port)
+        )
 
         self.__server = HttpServer(host, int(port))
         self.__thread = threading.Thread(target=self.__server.start, args=())
         self.__thread.start()
 
-        # In case of start-stop, stop may be finished before server start and ir will be impossible to join thread.       
+        # In case of start-stop, stop may be finished before server start and ir will be impossible to join thread.
         self.__server.wait_run_state()
-
 
     def stop_server(self):
         """
@@ -969,7 +1144,6 @@ class Server:
             self.__thread = None
 
             logger.info("HTTP server is stopped.")
-
 
     def wait_for_request(self, timeout=5):
         """
@@ -1010,7 +1184,6 @@ class Server:
 
         logger.info("Request is received: %s" % self.__request)
 
-
     def wait_for_no_request(self, timeout=5.0):
         """
 
@@ -1049,7 +1222,6 @@ class Server:
 
         logger.info("Request is not received.")
 
-
     def wait_and_ignore_request(self):
         """
 
@@ -1074,11 +1246,10 @@ class Server:
         ResponseStorage().push(IgnoreRequest())
         logger.info("Request is ignored by closing connection.")
 
-
     def set_stub_reply(self, method, url, status, body=None):
         """
-        
-        Sets stub reply for HTTP(S) server. This function sets a server stub to reply automatically by a specific 
+
+        Sets stub reply for HTTP(S) server. This function sets a server stub to reply automatically by a specific
         response to a specific request. When the stub is used to reply, then corresponding statistic is incremented
         (see \`Get Stub Count\`).
 
@@ -1097,9 +1268,9 @@ class Server:
         +----------------+------+-----------------+-----+
 
         .. code:: text
-        
+
             Set Stub Reply   POST   /api/v1/request   200
-        
+
         Example how to set stub to reply automatically using a specific body.
 
         +----------------+------+-----------------+-----+--------------------------+
@@ -1112,19 +1283,20 @@ class Server:
 
         """
         if self.__server is None:
-            message_error = "Impossible to set server stub reply (reason: 'server is not created')."
+            message_error = (
+                "Impossible to set server stub reply (reason: 'server is not created')."
+            )
             raise AssertionError(message_error)
-        
+
         criteria = HttpStubCriteria(method=method, url=url)
         response = Response(int(status), None, body, None, None)
         HttpStubContainer().add(criteria, response)
 
-
     def get_stub_count(self, method, url):
         """
-        
+
         Returns server stub statistic that defines how many time the stub was used by server to reply.
-        
+
         `method` [in] (string): Request method that is used to handle by server stub (GET, POST, DELETE, etc., see: RFC 7231, RFC 5789).
 
         `url` [in] (string): Path to the resource that is used by server stub, for example, in case address www.httpbin.org/ip - '/ip' is an path.
@@ -1157,7 +1329,6 @@ class Server:
         criteria = HttpStubCriteria(method=method, url=url)
         return HttpStubContainer().count(criteria)
 
-
     def get_request_source_address(self):
         """
 
@@ -1176,7 +1347,6 @@ class Server:
 
         """
         return self.__request.get_source_address()
-
 
     def get_request_source_port(self):
         """
@@ -1197,7 +1367,6 @@ class Server:
         """
         return str(self.__request.get_source_port())
 
-
     def get_request_source_port_as_integer(self):
         """
 
@@ -1216,7 +1385,6 @@ class Server:
 
         """
         return self.__request.get_source_port()
-
 
     def get_request_method(self):
         """
@@ -1237,7 +1405,6 @@ class Server:
         """
         return self.__request.get_method()
 
-
     def get_request_body(self):
         """
 
@@ -1256,7 +1423,6 @@ class Server:
 
         """
         return self.__request.get_body()
-
 
     def get_request_headers(self):
         """
@@ -1277,7 +1443,6 @@ class Server:
         """
         return self.__request.get_headers()
 
-
     def get_request_url(self):
         """
 
@@ -1296,7 +1461,6 @@ class Server:
 
         """
         return self.__request.get_url()
-
 
     def set_reply_header(self, key, value):
         """
@@ -1333,7 +1497,6 @@ class Server:
 
         """
         self.__response_headers[key] = value
-
 
     def reply_by(self, status, body=None):
         """
@@ -1484,7 +1647,7 @@ class Json:
 
         """
         json_content = json.loads(json_string)
-        keys = path.split('/')
+        keys = path.split("/")
 
         current_element = json_content
         for key in keys:
@@ -1494,7 +1657,6 @@ class Json:
             current_element = current_element[key]
 
         return current_element
-
 
     @staticmethod
     def set_json_value_in_string(json_string, path, value):
@@ -1543,7 +1705,7 @@ class Json:
 
         """
         json_content = json.loads(json_string)
-        keys = path.split('/')
+        keys = path.split("/")
 
         current_element = json_content
         for key in keys:
@@ -1559,7 +1721,6 @@ class Json:
                 current_element = current_element[key]
 
         return json.dumps(json_content)
-
 
 
 class Logging:

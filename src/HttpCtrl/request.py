@@ -3,11 +3,10 @@
 HttpCtrl library provides HTTP/HTTPS client and server API to Robot Framework to make REST API testing easy.
 
 Authors: Andrei Novikov
-Date: 2018-2022
+Date: 2018-2025
 Copyright: The 3-Clause BSD License
 
 """
-
 
 from HttpCtrl.utils.logger import LoggerAssistant
 
@@ -22,7 +21,14 @@ class Request:
         self.__headers = headers
 
     def __copy__(self):
-        return Request(self.__source_host, self.__source_port, self.__method, self.__url, self.__headers, self.__body)
+        return Request(
+            self.__source_host,
+            self.__source_port,
+            self.__method,
+            self.__url,
+            self.__headers,
+            self.__body,
+        )
 
     def __str__(self):
         body_to_log = LoggerAssistant.get_body(self.__body)
