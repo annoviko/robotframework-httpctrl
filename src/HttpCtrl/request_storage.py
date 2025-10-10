@@ -3,7 +3,7 @@
 HttpCtrl library provides HTTP/HTTPS client and server API to Robot Framework to make REST API testing easy.
 
 Authors: Andrei Novikov
-Date: 2018-2022
+Date: 2018-2025
 Copyright: The 3-Clause BSD License
 
 """
@@ -20,17 +20,14 @@ class RequestStorage(metaclass=Singleton):
         self.__request = None
         self.__event_incoming = threading.Condition()
 
-
     def __ready(self):
         return self.__request is not None
-
 
     def push(self, request):
         with self.__event_incoming:
             logger.info("Push request to the Request Storage: %s" % request)
             self.__request = request
             self.__event_incoming.notify()
-
 
     def pop(self, timeout=5.0):
         with self.__event_incoming:
@@ -42,7 +39,6 @@ class RequestStorage(metaclass=Singleton):
             request = self.__request
             self.__request = None
             return request
-
 
     def clear(self):
         with self.__event_incoming:
