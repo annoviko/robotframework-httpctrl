@@ -3,6 +3,9 @@ PATH_REPO_CURRENT=`readlink -f .`
 PATH_SOURCE=`readlink -f src`
 
 
+set -e
+
+
 # Configure git to push changes
 echo "[INFO] Configure git to commit and push changes."
 
@@ -24,6 +27,11 @@ git clone https://github.com/annoviko/robotframework-httpctrl.git .
 git checkout gh-pages
 
 PATH_REPO_GH_PAGES=`readlink -f .`
+
+
+# package to test
+echo "Install packages to generate documentation."
+pip3 install robotframework docutils pygments
 
 
 # Generate documentation
